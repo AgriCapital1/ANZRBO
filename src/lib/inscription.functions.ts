@@ -74,7 +74,10 @@ export const finalizeRegistration = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (memberErr) throw new Error(memberErr.message);
+    if (memberErr) {
+      console.error("finalizeRegistration: member insert failed", memberErr);
+      throw new Error("Échec de la création du compte. Veuillez réessayer.");
+    }
 
     // 2) Souscription d'inscription — payée
     const { data: sub, error: subErr } = await supabaseAdmin
@@ -92,7 +95,10 @@ export const finalizeRegistration = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (subErr) throw new Error(subErr.message);
+    if (subErr) {
+      console.error("finalizeRegistration: subscription insert failed", subErr);
+      throw new Error("Échec de l'enregistrement du paiement. Veuillez réessayer.");
+    }
 
     // 3) Trace MiPROJET (1 000 FCFA) — confirmé
     await supabaseAdmin.from("transactions_miprojet").insert({
