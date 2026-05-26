@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MemberAvatarImage } from "@/components/MemberAvatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth";
@@ -84,8 +85,8 @@ function Page() {
       setUploading(false);
       return toast.error(up.error.message);
     }
-    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const url = pub.publicUrl;
+    // Store the storage path (bucket is private — signed URLs are generated on render)
+    const url = path;
     const { error } = await supabase
       .from("members")
       .update({ photo_url: url })
@@ -142,7 +143,7 @@ function Page() {
           <CardContent className="-mt-12 p-6 text-center">
             <div className="relative inline-block">
               <Avatar className="h-24 w-24 ring-4 ring-background shadow-lg">
-                {m.photo_url ? <AvatarImage src={m.photo_url} /> : null}
+                <MemberAvatarImage src={m.photo_url} />
                 <AvatarFallback className="text-xl bg-primary text-primary-foreground">
                   {initials}
                 </AvatarFallback>

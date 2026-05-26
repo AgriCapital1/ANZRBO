@@ -1,3 +1,4 @@
+import { MemberAvatarImage } from "@/components/MemberAvatar";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -117,7 +118,7 @@ function MemberSidebar({ me }: { me: MemberSummary | null }) {
       <SidebarFooter className="border-t p-2">
         <div className={`flex items-center gap-2 rounded-lg p-2 ${collapsed ? "justify-center" : "bg-sidebar-accent/40"}`}>
           <Avatar className="h-9 w-9 ring-2 ring-background">
-            {me?.photo_url ? <AvatarImage src={me.photo_url} alt="" /> : null}
+            <MemberAvatarImage src={me?.photo_url} alt="" />
             <AvatarFallback className="text-xs bg-primary text-primary-foreground">
               {initials}
             </AvatarFallback>

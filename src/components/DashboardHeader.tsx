@@ -1,3 +1,4 @@
+import { MemberAvatarImage } from "@/components/MemberAvatar";
 import { Link, useLocation } from "@tanstack/react-router";
 import logo from "@/assets/mugec-logo.png";
 import { useAuth } from "@/lib/auth";
@@ -110,7 +111,7 @@ export function DashboardHeader({
             <Link to="/"><Home className="mr-2 h-4 w-4" /> Site public</Link>
           </Button>
           <Avatar className="h-9 w-9 border">
-            {me?.photo_url ? <AvatarImage src={me.photo_url} alt="Photo" /> : null}
+            <MemberAvatarImage src={me?.photo_url} alt="Photo" />
             <AvatarFallback className="text-xs">{initials}</AvatarFallback>
           </Avatar>
           <Button variant="ghost" size="sm" onClick={() => signOut()} title="Déconnexion">
