@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OpportunitesRouteImport } from './routes/opportunites'
@@ -33,6 +34,11 @@ import { Route as AdminMiprojetRouteImport } from './routes/admin/miprojet'
 import { Route as AdminMembresRouteImport } from './routes/admin/membres'
 import { Route as AdminCotisationsRouteImport } from './routes/admin/cotisations'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/opportunites': typeof OpportunitesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/membres': typeof AdminMembresRoute
   '/admin/miprojet': typeof AdminMiprojetRoute
@@ -185,6 +192,7 @@ export interface FileRoutesByTo {
   '/opportunites': typeof OpportunitesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/membres': typeof AdminMembresRoute
   '/admin/miprojet': typeof AdminMiprojetRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/opportunites': typeof OpportunitesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/membres': typeof AdminMembresRoute
   '/admin/miprojet': typeof AdminMiprojetRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/opportunites'
     | '/reset-password'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/cotisations'
     | '/admin/membres'
     | '/admin/miprojet'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/opportunites'
     | '/reset-password'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/cotisations'
     | '/admin/membres'
     | '/admin/miprojet'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/opportunites'
     | '/reset-password'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/cotisations'
     | '/admin/membres'
     | '/admin/miprojet'
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   OpportunitesRoute: typeof OpportunitesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ScannerRoute: typeof ScannerRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminCotisationsRoute: typeof AdminCotisationsRoute
   AdminMembresRoute: typeof AdminMembresRoute
   AdminMiprojetRoute: typeof AdminMiprojetRoute
@@ -331,6 +344,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scanner': {
       id: '/scanner'
       path: '/scanner'
@@ -506,6 +526,7 @@ const rootRouteChildren: RootRouteChildren = {
   OpportunitesRoute: OpportunitesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ScannerRoute: ScannerRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminCotisationsRoute: AdminCotisationsRoute,
   AdminMembresRoute: AdminMembresRoute,
   AdminMiprojetRoute: AdminMiprojetRoute,
