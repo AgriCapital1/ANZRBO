@@ -213,6 +213,16 @@ export function MembreLayout({
                     {me.statut}
                   </Badge>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => signOut()}
+                  title="Déconnexion"
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Déconnexion</span>
+                </Button>
               </div>
             </div>
           </header>
