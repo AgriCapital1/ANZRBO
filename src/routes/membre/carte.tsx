@@ -1,3 +1,4 @@
+import { MemberAvatarImg } from "@/components/MemberAvatar";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { MembreLayout } from "@/components/membre/MembreLayout";

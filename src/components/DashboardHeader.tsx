@@ -1,3 +1,4 @@
+import { MemberAvatarImage } from "@/components/MemberAvatar";
 import { Link, useLocation } from "@tanstack/react-router";
 import logo from "@/assets/mugec-logo.png";
 import { useAuth } from "@/lib/auth";
