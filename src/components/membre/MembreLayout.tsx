@@ -123,24 +123,13 @@ function MemberSidebar({ me }: { me: MemberSummary | null }) {
           </Avatar>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium truncate">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Bonjour
+              </div>
+              <div className="text-sm font-semibold truncate">
                 {me?.prenoms ?? ""} {me?.nom ?? ""}
               </div>
-              <div className="text-[11px] text-muted-foreground truncate font-mono">
-                {me?.matricule ?? user?.email ?? "—"}
-              </div>
             </div>
-          )}
-          {!collapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => signOut()}
-              title="Déconnexion"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
           )}
         </div>
       </SidebarFooter>
