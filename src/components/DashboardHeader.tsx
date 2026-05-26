@@ -176,6 +176,7 @@ export const ADMIN_NAV: NavItem[] = [
     label: "Finances",
     children: [
       { to: "/admin/cotisations", label: "Cotisations" },
+      { to: "/admin/cotisations", label: "Droits d'adhésion" },
     ],
   },
   { to: "/admin/prestations", label: "Prestations" },

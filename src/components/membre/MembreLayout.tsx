@@ -36,8 +36,6 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 const NAV_ITEMS = [
   { to: "/membre", label: "Tableau de bord", icon: LayoutDashboard },
   { to: "/membre/profil", label: "Mon profil", icon: User },
-  { to: "/membre/carte", label: "Ma carte", icon: CreditCard },
-  { to: "/membre/fiche", label: "Fiche d'adhésion", icon: FileText },
   { to: "/membre/documents", label: "Documents", icon: FileText },
   { to: "/membre/cotisations", label: "Cotisations", icon: Wallet },
 ] as const;
@@ -125,24 +123,13 @@ function MemberSidebar({ me }: { me: MemberSummary | null }) {
           </Avatar>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium truncate">
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Bonjour
+              </div>
+              <div className="text-sm font-semibold truncate">
                 {me?.prenoms ?? ""} {me?.nom ?? ""}
               </div>
-              <div className="text-[11px] text-muted-foreground truncate font-mono">
-                {me?.matricule ?? user?.email ?? "—"}
-              </div>
             </div>
-          )}
-          {!collapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => signOut()}
-              title="Déconnexion"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
           )}
         </div>
       </SidebarFooter>
@@ -161,7 +148,7 @@ export function MembreLayout({
   actions?: ReactNode;
   children: ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const nav = useNavigate();
   const [me, setMe] = useState<MemberSummary | null>(null);
 
@@ -226,6 +213,16 @@ export function MembreLayout({
                     {me.statut}
                   </Badge>
                 )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => signOut()}
+                  title="Déconnexion"
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Déconnexion</span>
+                </Button>
               </div>
             </div>
           </header>
