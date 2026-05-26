@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
+import { AuthProvider } from "@/lib/auth";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -72,14 +73,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "MUGEC-CI — Mutuelle Générale du Personnel des Collectivités" },
+      { name: "description", content: "MUGEC-CI est une plateforme dédiée aux agents des collectivités territoriales, facilitant l’accès aux informations, services et démarches liés à la mutuelle." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "MUGEC-CI — Mutuelle Générale du Personnel des Collectivités" },
+      { property: "og:description", content: "MUGEC-CI est une plateforme dédiée aux agents des collectivités territoriales, facilitant l’accès aux informations, services et démarches liés à la mutuelle." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "MUGEC-CI — Mutuelle Générale du Personnel des Collectivités" },
+      { name: "twitter:description", content: "MUGEC-CI est une plateforme dédiée aux agents des collectivités territoriales, facilitant l’accès aux informations, services et démarches liés à la mutuelle." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/v4bzOAwB95UUgZRmpFou7lsqiq03/social-images/social-1779636555574-MUGEC-CI.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/v4bzOAwB95UUgZRmpFou7lsqiq03/social-images/social-1779636555574-MUGEC-CI.webp" },
     ],
     links: [
       {
@@ -113,7 +118,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
