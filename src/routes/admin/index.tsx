@@ -206,6 +206,48 @@ function AdminDashboard() {
           />
         </section>
 
+        {/* Finances séparées : droits d'adhésion / cotisations / revenus globaux */}
+        <section className="grid gap-4 md:grid-cols-3">
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="h-1.5 bg-gradient-to-r from-amber-500 to-orange-600" />
+            <CardHeader className="pb-2">
+              <CardDescription>Droits d'adhésion</CardDescription>
+              <CardTitle className="text-2xl tabular-nums">
+                {((stats?.droits_adhesion_total ?? 0) / 1000).toFixed(0)} k F
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              Ce mois&nbsp;: <span className="font-semibold text-foreground">{((stats?.droits_adhesion_mois ?? 0) / 1000).toFixed(0)} k F</span>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="h-1.5 bg-gradient-to-r from-purple-500 to-pink-600" />
+            <CardHeader className="pb-2">
+              <CardDescription>Cotisations</CardDescription>
+              <CardTitle className="text-2xl tabular-nums">
+                {((stats?.cotisations_total ?? 0) / 1000).toFixed(0)} k F
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              Ce mois&nbsp;: <span className="font-semibold text-foreground">{((stats?.cotisations_mois ?? 0) / 1000).toFixed(0)} k F</span>
+            </CardContent>
+          </Card>
+          <Card className="border-0 shadow-md overflow-hidden">
+            <div className="h-1.5 bg-gradient-to-r from-emerald-500 to-teal-600" />
+            <CardHeader className="pb-2">
+              <CardDescription>Revenus globaux</CardDescription>
+              <CardTitle className="text-2xl tabular-nums">
+                {(((stats?.revenus_total ?? ((stats?.droits_adhesion_total ?? 0) + (stats?.cotisations_total ?? 0)))) / 1000).toFixed(0)} k F
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              Ce mois&nbsp;: <span className="font-semibold text-foreground">{(((stats?.revenus_mois ?? ((stats?.droits_adhesion_mois ?? 0) + (stats?.cotisations_mois ?? 0)))) / 1000).toFixed(0)} k F</span>
+            </CardContent>
+          </Card>
+        </section>
+
+
+
         {/* Charts */}
         <section className="grid gap-4 lg:grid-cols-3">
           <Card className="lg:col-span-2 border-0 shadow-md">
