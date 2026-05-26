@@ -84,8 +84,8 @@ function Page() {
       setUploading(false);
       return toast.error(up.error.message);
     }
-    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
-    const url = pub.publicUrl;
+    // Store the storage path (bucket is private — signed URLs are generated on render)
+    const url = path;
     const { error } = await supabase
       .from("members")
       .update({ photo_url: url })
