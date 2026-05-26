@@ -250,13 +250,17 @@ function Page() {
               <div className="grid grid-cols-[88px_1fr] gap-3 px-4 py-3">
                 {/* Photo */}
                 <div className="relative h-[108px] w-[88px] overflow-hidden rounded-md bg-white/95 ring-2 ring-white/70 shadow-inner">
-                  {m.photo_url ? (
-                    <img src={m.photo_url} alt={m.prenoms ?? "membre"} className="h-full w-full object-cover" />
-                  ) : (
+                  <MemberAvatarImg
+                    src={m.photo_url}
+                    alt={m.prenoms ?? "membre"}
+                    className="h-full w-full object-cover"
+                  />
+                  {!m.photo_url && (
                     <div className="flex h-full w-full items-center justify-center text-[10px] font-medium text-slate-400">
                       PHOTO
                     </div>
                   )}
+
                   <div
                     className="absolute inset-x-0 bottom-0 h-3"
                     style={{ background: "linear-gradient(90deg,#1e5ba8,#2baa8a,#7cb342)" }}

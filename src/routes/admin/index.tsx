@@ -313,7 +313,7 @@ function AdminDashboard() {
                   <TableRow key={m.id} className="group">
                     <TableCell>
                       <Avatar className="h-9 w-9 ring-2 ring-background shadow-sm">
-                        {m.photo_url ? <AvatarImage src={m.photo_url} /> : null}
+                        <MemberAvatarImage src={m.photo_url} />
                         <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold">
                           {(m.prenoms?.[0] ?? "") + (m.nom?.[0] ?? "")}
                         </AvatarFallback>
@@ -365,7 +365,7 @@ function AdminDashboard() {
           {selected && (
             <div className="flex gap-4">
               <Avatar className="h-24 w-24 ring-4 ring-primary/10">
-                {selected.photo_url ? <AvatarImage src={selected.photo_url} /> : null}
+                <MemberAvatarImage src={selected.photo_url} />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-bold text-xl">
                   {(selected.prenoms?.[0] ?? "") + (selected.nom?.[0] ?? "")}
                 </AvatarFallback>

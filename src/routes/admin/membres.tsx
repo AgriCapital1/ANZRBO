@@ -112,7 +112,7 @@ function MembresPage() {
                   <TableRow key={m.id} className="group">
                     <TableCell>
                       <Avatar className="h-9 w-9 ring-2 ring-background shadow-sm">
-                        {m.photo_url ? <AvatarImage src={m.photo_url}/> : null}
+                        <MemberAvatarImage src={m.photo_url} />
                         <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-semibold">
                           {(m.prenoms?.[0] ?? "") + (m.nom?.[0] ?? "")}
                         </AvatarFallback>
