@@ -20,7 +20,13 @@ const memberSchema = z.object({
   matricule_pro: z.string().trim().max(50).optional().nullable(),
   date_embauche: z.string().optional().nullable(),
   ayants_droit: z.string().max(4000).optional().nullable(),
-  photo_url: z.string().max(2_000_000).optional().nullable(),
+  photo_url: z
+    .string()
+    .max(500)
+    .regex(/^[A-Za-z0-9._\-/]+$/, "Chemin photo invalide")
+    .refine((v) => !v.startsWith("data:") && !/^https?:\/\//i.test(v), "Chemin photo invalide")
+    .optional()
+    .nullable(),
   paiement_methode: z.enum(["orange", "mtn", "wave", "moov"]),
   payment_reference: z.string().min(3).max(80),
 });
