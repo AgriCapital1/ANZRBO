@@ -49,13 +49,9 @@ function Page() {
         setErrorMsg("Identifiant ou mot de passe incorrect, veuillez réessayer.");
         return;
       }
-      let target = "/membre";
-      try {
-        const { data: path } = await supabase.rpc("current_user_dashboard_path");
-        if (typeof path === "string" && path.length > 0) target = path;
-      } catch {
-        // garde /membre par défaut
-      }
+      // dashboard_path is computed server-side inside loginWithIdentifier
+      // from this user's roles — no race condition possible.
+      const target = res.dashboard_path || "/membre";
       toast.success("Bienvenue !");
       window.location.assign(target);
     } catch (err) {
