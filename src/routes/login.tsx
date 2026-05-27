@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { loginWithIdentifier } from "@/lib/login.functions";
 import logo from "@/assets/mugec-logo.png";
 
 export const Route = createFileRoute("/login")({
