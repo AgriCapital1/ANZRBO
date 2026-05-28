@@ -49,14 +49,20 @@ function NotificationsPage() {
       .limit(200);
     if (canal !== "all") qb = qb.eq("canal", canal);
     const { data, error } = await qb;
-    if (error) toast.error(error.message); else setLogs((data as any) || []);
+    if (error) {
+      console.error("[admin/notifications] loadLogs failed", error);
+      toast.error("Impossible de charger l'historique.");
+    } else setLogs((data as any) || []);
   }
   async function loadTpls() {
     const { data, error } = await supabase
       .from("notification_templates")
       .select("*")
       .order("created_at", { ascending: false });
-    if (error) toast.error(error.message); else setTpls((data as any) || []);
+    if (error) {
+      console.error("[admin/notifications] loadTpls failed", error);
+      toast.error("Impossible de charger les modèles.");
+    } else setTpls((data as any) || []);
   }
   useEffect(() => { loadLogs(); loadTpls(); /* eslint-disable-next-line */ }, [canal]);
 
@@ -68,7 +74,10 @@ function NotificationsPage() {
 
   async function toggleTpl(t: Tpl) {
     const { error } = await supabase.from("notification_templates").update({ active: !t.active }).eq("id", t.id);
-    if (error) toast.error(error.message); else { toast.success("Modèle mis à jour"); loadTpls(); }
+    if (error) {
+      console.error("[admin/notifications] toggleTpl failed", error);
+      toast.error("Impossible de mettre à jour le modèle.");
+    } else { toast.success("Modèle mis à jour"); loadTpls(); }
   }
   async function saveDraft() {
     if (!draft.event || !draft.channel || !draft.title || !draft.body) {
@@ -77,8 +86,10 @@ function NotificationsPage() {
     const { error } = await supabase.from("notification_templates").insert([{
       event: draft.event, channel: draft.channel, title: draft.title, body: draft.body, active: draft.active ?? true,
     }]);
-    if (error) toast.error(error.message);
-    else { toast.success("Modèle créé"); setCreating(false); setDraft({ event: "", channel: "email", title: "", body: "", active: true }); loadTpls(); }
+    if (error) {
+      console.error("[admin/notifications] saveDraft failed", error);
+      toast.error("Impossible d'enregistrer le modèle.");
+    } else { toast.success("Modèle créé"); setCreating(false); setDraft({ event: "", channel: "email", title: "", body: "", active: true }); loadTpls(); }
   }
 
   return (

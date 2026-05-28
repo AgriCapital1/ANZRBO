@@ -73,8 +73,10 @@ function AdminDashboard() {
       q = q.or(`nom.ilike.${s},prenoms.ilike.${s},telephone.ilike.${s},matricule.ilike.${s},email.ilike.${s}`);
     }
     const { data, error } = await q;
-    if (error) toast.error(error.message);
-    else setMembers((data as MemberRow[]) || []);
+    if (error) {
+      console.error("[admin/index] loadMembers failed", error);
+      toast.error("Impossible de charger les membres.");
+    } else setMembers((data as MemberRow[]) || []);
     setLoading(false);
   }
   async function loadTrend() {
@@ -112,8 +114,10 @@ function AdminDashboard() {
 
   async function setStatus(id: string, statut: string) {
     const { error } = await supabase.from("members").update({ statut }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success(`Statut → ${statut}`); loadMembers(); loadStats(); }
+    if (error) {
+      console.error("[admin/index] setStatus failed", error);
+      toast.error("Impossible de mettre à jour le statut.");
+    } else { toast.success(`Statut → ${statut}`); loadMembers(); loadStats(); }
   }
 
   async function openEdit(m: MemberRow) {
@@ -125,8 +129,10 @@ function AdminDashboard() {
     if (!editData) return;
     const { id, created_at, updated_at, user_id, ...patch } = editData;
     const { error } = await supabase.from("members").update(patch).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Membre mis à jour"); setEditOpen(false); loadMembers(); }
+    if (error) {
+      console.error("[admin/index] saveEdit failed", error);
+      toast.error("Impossible de mettre à jour le membre.");
+    } else { toast.success("Membre mis à jour"); setEditOpen(false); loadMembers(); }
   }
 
   const repartition = useMemo(() => {

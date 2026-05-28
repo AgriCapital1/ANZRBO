@@ -44,8 +44,10 @@ function CotisationsPage() {
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (statut !== "all" && statut !== "en_retard") qb = qb.eq("statut", statut);
     const { data, error } = await qb;
-    if (error) toast.error(error.message);
-    else setRows((data as any) || []);
+    if (error) {
+      console.error("[admin/cotisations] load failed", error);
+      toast.error("Impossible de charger les cotisations.");
+    } else setRows((data as any) || []);
     setLoading(false);
   }
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [page, statut]);
@@ -68,8 +70,10 @@ function CotisationsPage() {
 
   async function markPaid(id: string) {
     const { error } = await supabase.from("cotisations").update({ statut: "paye", paye_le: new Date().toISOString() }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Marqué payé"); load(); }
+    if (error) {
+      console.error("[admin/cotisations] markPaid failed", error);
+      toast.error("Impossible de marquer comme payé.");
+    } else { toast.success("Marqué payé"); load(); }
   }
 
   async function relancer(r: Row, channels: ("sms"|"whatsapp"|"email")[]) {

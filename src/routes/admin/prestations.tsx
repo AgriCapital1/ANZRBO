@@ -71,8 +71,10 @@ function PrestationsPage() {
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (statut !== "all") qb = qb.eq("statut_global", statut);
     const { data, error } = await qb;
-    if (error) toast.error(error.message);
-    else setRows((data as any) || []);
+    if (error) {
+      console.error("[admin/prestations] load failed", error);
+      toast.error("Impossible de charger les prestations.");
+    } else setRows((data as any) || []);
     setLoading(false);
   }
 
@@ -114,7 +116,11 @@ function PrestationsPage() {
     const { error } = await supabase.rpc("validate_prestation_step", {
       _request_id: current.id, _action: action, _motif: motif || undefined,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      console.error("[admin/prestations] validate_prestation_step failed", error);
+      toast.error("Action impossible. Vérifiez vos droits et réessayez.");
+      return;
+    }
     toast.success(action === "valide" ? "Validation enregistrée" : "Demande rejetée");
     setOpen(false);
     await load();
