@@ -71,8 +71,10 @@ function PrestationsPage() {
       .range(page * PAGE, page * PAGE + PAGE - 1);
     if (statut !== "all") qb = qb.eq("statut_global", statut);
     const { data, error } = await qb;
-    if (error) toast.error(error.message);
-    else setRows((data as any) || []);
+    if (error) {
+      console.error("[admin/prestations] load failed", error);
+      toast.error("Impossible de charger les prestations.");
+    } else setRows((data as any) || []);
     setLoading(false);
   }
 
