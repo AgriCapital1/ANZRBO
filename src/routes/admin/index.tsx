@@ -129,8 +129,10 @@ function AdminDashboard() {
     if (!editData) return;
     const { id, created_at, updated_at, user_id, ...patch } = editData;
     const { error } = await supabase.from("members").update(patch).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Membre mis à jour"); setEditOpen(false); loadMembers(); }
+    if (error) {
+      console.error("[admin/index] saveEdit failed", error);
+      toast.error("Impossible de mettre à jour le membre.");
+    } else { toast.success("Membre mis à jour"); setEditOpen(false); loadMembers(); }
   }
 
   const repartition = useMemo(() => {
