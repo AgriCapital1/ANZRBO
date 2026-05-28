@@ -114,8 +114,10 @@ function AdminDashboard() {
 
   async function setStatus(id: string, statut: string) {
     const { error } = await supabase.from("members").update({ statut }).eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success(`Statut → ${statut}`); loadMembers(); loadStats(); }
+    if (error) {
+      console.error("[admin/index] setStatus failed", error);
+      toast.error("Impossible de mettre à jour le statut.");
+    } else { toast.success(`Statut → ${statut}`); loadMembers(); loadStats(); }
   }
 
   async function openEdit(m: MemberRow) {
