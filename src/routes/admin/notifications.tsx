@@ -49,7 +49,10 @@ function NotificationsPage() {
       .limit(200);
     if (canal !== "all") qb = qb.eq("canal", canal);
     const { data, error } = await qb;
-    if (error) toast.error(error.message); else setLogs((data as any) || []);
+    if (error) {
+      console.error("[admin/notifications] loadLogs failed", error);
+      toast.error("Impossible de charger l'historique.");
+    } else setLogs((data as any) || []);
   }
   async function loadTpls() {
     const { data, error } = await supabase
