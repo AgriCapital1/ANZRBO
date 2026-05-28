@@ -116,7 +116,11 @@ function PrestationsPage() {
     const { error } = await supabase.rpc("validate_prestation_step", {
       _request_id: current.id, _action: action, _motif: motif || undefined,
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      console.error("[admin/prestations] validate_prestation_step failed", error);
+      toast.error("Action impossible. Vérifiez vos droits et réessayez.");
+      return;
+    }
     toast.success(action === "valide" ? "Validation enregistrée" : "Demande rejetée");
     setOpen(false);
     await load();
