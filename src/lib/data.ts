@@ -218,7 +218,7 @@ function telephoneFictif(i: number) {
 }
 
 function genererMembresFictifs(): Membre[] {
-  return Array.from({ length: 90 }, (_, offset) => {
+  return Array.from({ length: 100 }, (_, offset) => {
     const i = offset + 11;
     const statut: Statut = i % 29 === 0 ? "suspendu" : i % 19 === 0 ? "decede" : "actif";
     const mois = ((i % 12) + 1).toString().padStart(2, "0");

@@ -7,6 +7,7 @@ L'ANZRBO organise la solidarité de ses membres autour de cotisations encadrées
 ## Pages
 
 - [Accueil](/): Présentation de l'association, missions et fonctionnement de la solidarité.
+- [Guide procédure décès](/guide/procedure-deces): Étapes de déclaration d'un décès, dossier, cotisation solidaire, assistance ANZRBO et suivi NSIA.
 - [Foire aux questions](/faq): Réponses aux questions courantes sur l'adhésion, les cotisations et la vérification d'un membre.
 - [Contact](/contact): Coordonnées de l'association et formulaire de contact.
 - [Scanner QR](/scanner): Vérification publique d'un membre par scan de QR Code.
