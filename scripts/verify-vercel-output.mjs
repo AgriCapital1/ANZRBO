@@ -1,9 +1,10 @@
-import { existsSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const expectedOutput = ".vercel/output";
 const expectedPublicOutput = ".vercel/output/static";
 const serverEntry = ".vercel/output/functions/__server.func/index.mjs";
+const distFallback = "dist";
 
 function fail(message) {
   console.error(`[vercel-output-check] ${message}`);
@@ -37,11 +38,22 @@ if (publicFiles === 0) {
   fail(`${expectedPublicOutput} est vide, Vercel refuserait la sortie de build.`);
 }
 
+rmSync(distFallback, { recursive: true, force: true });
+mkdirSync(distFallback, { recursive: true });
+cpSync(expectedPublicOutput, distFallback, { recursive: true });
+if (!existsSync(join(distFallback, "index.html"))) {
+  writeFileSync(
+    join(distFallback, "index.html"),
+    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ANZRBO</title></head><body><p>ANZRBO — sortie SSR générée dans .vercel/output.</p></body></html>\n`,
+  );
+}
+
 const manifest = {
   checkedAt: new Date().toISOString(),
   vercelOutputDirectory: expectedOutput,
   publicOutputDirectory: expectedPublicOutput,
   serverEntry,
+  distFallback,
   publicFiles,
   deployment: {
     environment: process.env.VERCEL_ENV ?? "local",

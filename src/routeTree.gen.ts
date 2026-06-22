@@ -19,6 +19,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as VerifierTelephoneRouteImport } from './routes/verifier.$telephone'
+import { Route as GuideProcedureDecesRouteImport } from './routes/guide.procedure-deces'
 import { Route as AdminNsiaRouteImport } from './routes/admin/nsia'
 import { Route as AdminDiagnosticsRouteImport } from './routes/admin/diagnostics'
 import { Route as AdminCotisationsRouteImport } from './routes/admin/cotisations'
@@ -78,6 +79,11 @@ const VerifierTelephoneRoute = VerifierTelephoneRouteImport.update({
   path: '/verifier/$telephone',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuideProcedureDecesRoute = GuideProcedureDecesRouteImport.update({
+  id: '/guide/procedure-deces',
+  path: '/guide/procedure-deces',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminNsiaRoute = AdminNsiaRouteImport.update({
   id: '/admin/nsia',
   path: '/admin/nsia',
@@ -132,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
   '/admin/nsia': typeof AdminNsiaRouteWithChildren
+  '/guide/procedure-deces': typeof GuideProcedureDecesRoute
   '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
+  '/guide/procedure-deces': typeof GuideProcedureDecesRoute
   '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin': typeof AdminIndexRoute
   '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
   '/admin/nsia': typeof AdminNsiaRouteWithChildren
+  '/guide/procedure-deces': typeof GuideProcedureDecesRoute
   '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
@@ -194,6 +203,7 @@ export interface FileRouteTypes {
     | '/admin/cotisations'
     | '/admin/diagnostics'
     | '/admin/nsia'
+    | '/guide/procedure-deces'
     | '/verifier/$telephone'
     | '/admin/'
     | '/admin/membres/nouveau'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/admin/assistances'
     | '/admin/cotisations'
     | '/admin/diagnostics'
+    | '/guide/procedure-deces'
     | '/verifier/$telephone'
     | '/admin'
     | '/admin/membres/nouveau'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/admin/cotisations'
     | '/admin/diagnostics'
     | '/admin/nsia'
+    | '/guide/procedure-deces'
     | '/verifier/$telephone'
     | '/admin/'
     | '/admin/membres/nouveau'
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   AdminCotisationsRoute: typeof AdminCotisationsRoute
   AdminDiagnosticsRoute: typeof AdminDiagnosticsRoute
   AdminNsiaRoute: typeof AdminNsiaRouteWithChildren
+  GuideProcedureDecesRoute: typeof GuideProcedureDecesRoute
   VerifierTelephoneRoute: typeof VerifierTelephoneRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminMembresNouveauRoute: typeof AdminMembresNouveauRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/verifier/$telephone'
       fullPath: '/verifier/$telephone'
       preLoaderRoute: typeof VerifierTelephoneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide/procedure-deces': {
+      id: '/guide/procedure-deces'
+      path: '/guide/procedure-deces'
+      fullPath: '/guide/procedure-deces'
+      preLoaderRoute: typeof GuideProcedureDecesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/nsia': {
@@ -418,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCotisationsRoute: AdminCotisationsRoute,
   AdminDiagnosticsRoute: AdminDiagnosticsRoute,
   AdminNsiaRoute: AdminNsiaRouteWithChildren,
+  GuideProcedureDecesRoute: GuideProcedureDecesRoute,
   VerifierTelephoneRoute: VerifierTelephoneRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminMembresNouveauRoute: AdminMembresNouveauRoute,

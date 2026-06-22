@@ -70,6 +70,9 @@ function Index() {
                   Nous contacter <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/guide/procedure-deces">Guide procédure décès</Link>
+              </Button>
             </div>
             <p className="mt-6 text-xs text-muted-foreground">
               L'inscription d'un membre est effectuée uniquement par un administrateur ANZRBO.
@@ -116,6 +119,23 @@ function Index() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      </section>
+
+      <section className="container mx-auto max-w-7xl px-4 pb-20">
+        <div className="grid gap-6 border-y py-10 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Déclarer un décès à l'ANZRBO</h2>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              Consultez la procédure officielle pour préparer le dossier, comprendre la cotisation
+              solidaire et suivre l'assistance ANZRBO / NSIA.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/guide/procedure-deces">
+              Lire le guide <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </section>
 

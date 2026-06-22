@@ -116,7 +116,7 @@ function num(i: number) {
   return `ANZRBO-2026-${String(i).padStart(5, "0")}`;
 }
 
-export const MEMBRES: Membre[] = [
+const MEMBRES_INITIAUX: Membre[] = [
   {
     id: "m01", numeroMembre: num(1), photoUrl: null,
     nom: "MEMBRE-01", prenoms: "Démo 01", telephone: "0000000001",
@@ -209,7 +209,56 @@ export const MEMBRES: Membre[] = [
   },
 ];
 
-export const AYANTS_DROIT: AyantDroit[] = [
+const NOMS_FICTIFS = ["Koffi", "Kouame", "Yao", "N'Guessan", "Konan", "Kadio", "Traore", "Bamba", "Amani", "Kouadio"];
+const PRENOMS_FICTIFS = ["Awa", "Jean", "Mariam", "Serge", "Akissi", "Didier", "Affoué", "Benoît", "Rosine", "Armand"];
+const VILLAGES_FICTIFS = ["Zaguiéta", "Gouéta", "N'Drikro", "Blaisekro", "Kouassikro", "Dioulabougou", "Belleville", "Yaokro"];
+
+function telephoneFictif(i: number) {
+  return `07${String(58000000 + i * 137).padStart(8, "0")}`;
+}
+
+function genererMembresFictifs(): Membre[] {
+  return Array.from({ length: 100 }, (_, offset) => {
+    const i = offset + 11;
+    const statut: Statut = i % 29 === 0 ? "suspendu" : i % 19 === 0 ? "decede" : "actif";
+    const mois = ((i % 12) + 1).toString().padStart(2, "0");
+    const jour = ((i % 26) + 1).toString().padStart(2, "0");
+    return {
+      id: `m${String(i).padStart(3, "0")}`,
+      numeroMembre: num(i),
+      photoUrl: null,
+      nom: `${NOMS_FICTIFS[i % NOMS_FICTIFS.length].toUpperCase()}-${String(i).padStart(3, "0")}`,
+      prenoms: `${PRENOMS_FICTIFS[i % PRENOMS_FICTIFS.length]} Fictif ${String(i).padStart(2, "0")}`,
+      telephone: telephoneFictif(i),
+      contact2: i % 4 === 0 ? telephoneFictif(i + 500) : undefined,
+      sousPrefecture: "Bonon",
+      village: VILLAGES_FICTIFS[i % VILLAGES_FICTIFS.length],
+      quartier: i % 3 === 0 ? "Quartier résidentiel" : "Quartier central",
+      dateNaissance: `${1960 + (i % 35)}-${mois}-${jour}`,
+      lieuNaissance: VILLAGES_FICTIFS[(i + 2) % VILLAGES_FICTIFS.length],
+      dateInscription: `${2024 + (i % 3)}-${mois}-${jour}`,
+      statut,
+      urgence: {
+        nom: `Contact urgence ${String(i).padStart(3, "0")}`,
+        contact1: telephoneFictif(i + 900),
+        contact2: i % 5 === 0 ? telephoneFictif(i + 950) : undefined,
+        adresse: `${VILLAGES_FICTIFS[i % VILLAGES_FICTIFS.length]}, Bonon`,
+      },
+      paiementInscription: {
+        mode: i % 2 === 0 ? "mobile_money" : "especes",
+        typePreuve: i % 4 === 0 ? "photo_document" : "id_transaction",
+        idTransaction: i % 4 === 0 ? undefined : `PAY-${2024 + (i % 3)}-${String(i).padStart(4, "0")}`,
+        montant: FRAIS_INSCRIPTION_DIGITORG,
+        date: `${2024 + (i % 3)}-${mois}-${jour}`,
+      },
+    };
+  });
+}
+
+const MEMBRES_FICTIFS_GENERES = genererMembresFictifs();
+export const MEMBRES: Membre[] = [...MEMBRES_INITIAUX, ...MEMBRES_FICTIFS_GENERES];
+
+const AYANTS_DROIT_INITIAUX: AyantDroit[] = [
   // M01
   { id: "a01a", membreId: "m01", lien: "conjoint", nom: "Ayant droit 01A", dateNaissance: "1965-04-10", lieuNaissance: "Lieu démo" },
   { id: "a01b", membreId: "m01", lien: "mere", nom: "Ayant droit 01B", dateNaissance: "1938-01-01", lieuNaissance: "Lieu démo" },
@@ -243,8 +292,26 @@ export const AYANTS_DROIT: AyantDroit[] = [
   { id: "a10b", membreId: "m10", lien: "conjoint", nom: "Ayant droit 10B", dateNaissance: "1985-07-07", lieuNaissance: "Lieu démo" },
 ];
 
+function genererAyantsDroitFictifs(): AyantDroit[] {
+  const liens: AyantDroit["lien"][] = ["conjoint", "pere", "mere", "enfant", "beau-pere", "belle-mere"];
+  return MEMBRES_FICTIFS_GENERES.flatMap((m, index) => {
+    const rang = index + 11;
+    const total = 2 + (rang % 3);
+    return Array.from({ length: total }, (_, j) => ({
+      id: `a${String(rang).padStart(3, "0")}${String.fromCharCode(97 + j)}`,
+      membreId: m.id,
+      lien: liens[(rang + j) % liens.length],
+      nom: `Ayant droit fictif ${String(rang).padStart(3, "0")}-${j + 1}`,
+      dateNaissance: `${1935 + ((rang + j * 7) % 55)}-${String(((rang + j) % 12) + 1).padStart(2, "0")}-${String(((rang + j * 2) % 26) + 1).padStart(2, "0")}`,
+      lieuNaissance: VILLAGES_FICTIFS[(rang + j) % VILLAGES_FICTIFS.length],
+    }));
+  });
+}
+
+export const AYANTS_DROIT: AyantDroit[] = [...AYANTS_DROIT_INITIAUX, ...genererAyantsDroitFictifs()];
+
 // 6 souscriptions NSIA (M01, M04, M05, M06, M09, M10)
-export const SOUSCRIPTIONS_NSIA: SouscriptionNsia[] = [
+const SOUSCRIPTIONS_NSIA_INITIALES: SouscriptionNsia[] = [
   mkSouscription("s01", "m01", 5, 2, "2024-08-10"),  // 12500 x 2 = 25000
   mkSouscription("s04", "m04", 3, 3, "2024-10-05"),  // 7500 x 3 = 22500
   mkSouscription("s05", "m05", 6, 2, "2024-11-20"),  // 15000 x 2 = 30000
@@ -261,8 +328,23 @@ function mkSouscription(id: string, membreId: string, formule: number, nbPersonn
   };
 }
 
+const SOUSCRIPTIONS_NSIA_FICTIVES = MEMBRES_FICTIFS_GENERES
+  .filter((m, index) => m.statut !== "suspendu" && index % 2 === 0)
+  .map((m, index) => {
+    const rang = Number(m.id.slice(1));
+    return mkSouscription(
+      `s${m.id.slice(1)}`,
+      m.id,
+      ((rang + index) % FORMULES_NSIA.length) + 1,
+      1 + (rang % 5),
+      `${2024 + (rang % 3)}-${String((rang % 12) + 1).padStart(2, "0")}-${String((rang % 24) + 1).padStart(2, "0")}`,
+    );
+  });
+
+export const SOUSCRIPTIONS_NSIA: SouscriptionNsia[] = [...SOUSCRIPTIONS_NSIA_INITIALES, ...SOUSCRIPTIONS_NSIA_FICTIVES];
+
 // 8 déclarations de décès (3 principaux + 5 ayants droit)
-export const DECLARATIONS: DeclarationDeces[] = [
+const DECLARATIONS_INITIALES: DeclarationDeces[] = [
   { id: "d1", membreId: "m01", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-04-12", dateDeclaration: "2026-04-13" },
   { id: "d2", membreId: "m02", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-04-25", dateDeclaration: "2026-04-26" },
   { id: "d3", membreId: "m03", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-05-08", dateDeclaration: "2026-05-09" },
@@ -273,8 +355,26 @@ export const DECLARATIONS: DeclarationDeces[] = [
   { id: "d8", membreId: "m10", defuntType: "ayant_droit", ayantDroitId: "a10a", nomDefunt: "Défunt démo", dateDeces: "2026-05-28", dateDeclaration: "2026-05-30" },
 ];
 
+const DECLARATIONS_FICTIVES: DeclarationDeces[] = SOUSCRIPTIONS_NSIA_FICTIVES.slice(0, 18).map((s, index) => {
+  const droit = AYANTS_DROIT.find((a) => a.membreId === s.membreId);
+  const isAyantDroit = index % 2 === 1 && Boolean(droit);
+  const mois = String((index % 8) + 1).padStart(2, "0");
+  const jour = String(((index * 3) % 24) + 1).padStart(2, "0");
+  return {
+    id: `df${String(index + 1).padStart(2, "0")}`,
+    membreId: s.membreId,
+    defuntType: isAyantDroit ? "ayant_droit" : "principal",
+    ayantDroitId: isAyantDroit ? droit?.id : undefined,
+    nomDefunt: isAyantDroit ? droit!.nom : `Défunt simulation ${String(index + 1).padStart(2, "0")}`,
+    dateDeces: `2026-${mois}-${jour}`,
+    dateDeclaration: `2026-${mois}-${String(Number(jour) + 1).padStart(2, "0")}`,
+  };
+});
+
+export const DECLARATIONS: DeclarationDeces[] = [...DECLARATIONS_INITIALES, ...DECLARATIONS_FICTIVES];
+
 // Assistances ANZRBO (8 déclarations) : 5 versées, 3 refusées/en attente
-export const ASSISTANCES: Assistance[] = [
+const ASSISTANCES_INITIALES: Assistance[] = [
   { id: "as1", declarationId: "d1", beneficiaire: "Bénéficiaire démo", montant: ASSISTANCE_ANZRBO, statut: "versee", dateTraitement: "2026-04-15" },
   { id: "as2", declarationId: "d2", beneficiaire: "Bénéficiaire démo", montant: ASSISTANCE_ANZRBO, statut: "versee", dateTraitement: "2026-04-28" },
   { id: "as3", declarationId: "d3", beneficiaire: "Bénéficiaire démo", montant: 0, statut: "refusee", motifRefus: "Membre principal non à jour des cotisations" },
@@ -285,13 +385,34 @@ export const ASSISTANCES: Assistance[] = [
   { id: "as8", declarationId: "d8", beneficiaire: "Bénéficiaire démo", montant: 0, statut: "en_attente" },
 ];
 
+const ASSISTANCES_FICTIVES: Assistance[] = DECLARATIONS_FICTIVES.map((d, index) => ({
+  id: `asf${String(index + 1).padStart(2, "0")}`,
+  declarationId: d.id,
+  beneficiaire: `Bénéficiaire simulation ${String(index + 1).padStart(2, "0")}`,
+  montant: index % 5 === 0 ? 0 : ASSISTANCE_ANZRBO,
+  statut: index % 5 === 0 ? "en_attente" : index % 7 === 0 ? "refusee" : "versee",
+  motifRefus: index % 7 === 0 && index % 5 !== 0 ? "Pièces justificatives incomplètes" : undefined,
+  dateTraitement: index % 5 === 0 ? undefined : d.dateDeclaration,
+}));
+
+export const ASSISTANCES: Assistance[] = [...ASSISTANCES_INITIALES, ...ASSISTANCES_FICTIVES];
+
 // Paiements NSIA : 4 décès couverts NSIA → versés (D1, D4, D6, D8)
-export const PAIEMENTS_NSIA: PaiementNsia[] = [
+const PAIEMENTS_NSIA_INITIAUX: PaiementNsia[] = [
   mkPaiementNsia("p1", "d1", "s01", "2026-04-30"),
   mkPaiementNsia("p2", "d4", "s06", "2026-03-20"),
   mkPaiementNsia("p3", "d6", "s09", "2026-04-22"),
   mkPaiementNsia("p4", "d8", "s10", "2026-05-31"),
 ];
+
+const PAIEMENTS_NSIA_FICTIFS: PaiementNsia[] = DECLARATIONS_FICTIVES
+  .filter((_, index) => index % 3 !== 0)
+  .map((d, index) => {
+    const souscription = SOUSCRIPTIONS_NSIA.find((s) => s.membreId === d.membreId)!;
+    return mkPaiementNsia(`pf${String(index + 1).padStart(2, "0")}`, d.id, souscription.id, d.dateDeclaration);
+  });
+
+export const PAIEMENTS_NSIA: PaiementNsia[] = [...PAIEMENTS_NSIA_INITIAUX, ...PAIEMENTS_NSIA_FICTIFS];
 
 function mkPaiementNsia(id: string, declId: string, souscriptionId: string, date: string): PaiementNsia {
   const s = SOUSCRIPTIONS_NSIA.find((x) => x.id === souscriptionId)!;
