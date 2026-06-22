@@ -355,8 +355,26 @@ const DECLARATIONS_INITIALES: DeclarationDeces[] = [
   { id: "d8", membreId: "m10", defuntType: "ayant_droit", ayantDroitId: "a10a", nomDefunt: "Défunt démo", dateDeces: "2026-05-28", dateDeclaration: "2026-05-30" },
 ];
 
+const DECLARATIONS_FICTIVES: DeclarationDeces[] = SOUSCRIPTIONS_NSIA_FICTIVES.slice(0, 18).map((s, index) => {
+  const droit = AYANTS_DROIT.find((a) => a.membreId === s.membreId);
+  const isAyantDroit = index % 2 === 1 && Boolean(droit);
+  const mois = String((index % 8) + 1).padStart(2, "0");
+  const jour = String(((index * 3) % 24) + 1).padStart(2, "0");
+  return {
+    id: `df${String(index + 1).padStart(2, "0")}`,
+    membreId: s.membreId,
+    defuntType: isAyantDroit ? "ayant_droit" : "principal",
+    ayantDroitId: isAyantDroit ? droit?.id : undefined,
+    nomDefunt: isAyantDroit ? droit!.nom : `Défunt simulation ${String(index + 1).padStart(2, "0")}`,
+    dateDeces: `2026-${mois}-${jour}`,
+    dateDeclaration: `2026-${mois}-${String(Number(jour) + 1).padStart(2, "0")}`,
+  };
+});
+
+export const DECLARATIONS: DeclarationDeces[] = [...DECLARATIONS_INITIALES, ...DECLARATIONS_FICTIVES];
+
 // Assistances ANZRBO (8 déclarations) : 5 versées, 3 refusées/en attente
-export const ASSISTANCES: Assistance[] = [
+const ASSISTANCES_INITIALES: Assistance[] = [
   { id: "as1", declarationId: "d1", beneficiaire: "Bénéficiaire démo", montant: ASSISTANCE_ANZRBO, statut: "versee", dateTraitement: "2026-04-15" },
   { id: "as2", declarationId: "d2", beneficiaire: "Bénéficiaire démo", montant: ASSISTANCE_ANZRBO, statut: "versee", dateTraitement: "2026-04-28" },
   { id: "as3", declarationId: "d3", beneficiaire: "Bénéficiaire démo", montant: 0, statut: "refusee", motifRefus: "Membre principal non à jour des cotisations" },
@@ -367,13 +385,34 @@ export const ASSISTANCES: Assistance[] = [
   { id: "as8", declarationId: "d8", beneficiaire: "Bénéficiaire démo", montant: 0, statut: "en_attente" },
 ];
 
+const ASSISTANCES_FICTIVES: Assistance[] = DECLARATIONS_FICTIVES.map((d, index) => ({
+  id: `asf${String(index + 1).padStart(2, "0")}`,
+  declarationId: d.id,
+  beneficiaire: `Bénéficiaire simulation ${String(index + 1).padStart(2, "0")}`,
+  montant: index % 5 === 0 ? 0 : ASSISTANCE_ANZRBO,
+  statut: index % 5 === 0 ? "en_attente" : index % 7 === 0 ? "refusee" : "versee",
+  motifRefus: index % 7 === 0 && index % 5 !== 0 ? "Pièces justificatives incomplètes" : undefined,
+  dateTraitement: index % 5 === 0 ? undefined : d.dateDeclaration,
+}));
+
+export const ASSISTANCES: Assistance[] = [...ASSISTANCES_INITIALES, ...ASSISTANCES_FICTIVES];
+
 // Paiements NSIA : 4 décès couverts NSIA → versés (D1, D4, D6, D8)
-export const PAIEMENTS_NSIA: PaiementNsia[] = [
+const PAIEMENTS_NSIA_INITIAUX: PaiementNsia[] = [
   mkPaiementNsia("p1", "d1", "s01", "2026-04-30"),
   mkPaiementNsia("p2", "d4", "s06", "2026-03-20"),
   mkPaiementNsia("p3", "d6", "s09", "2026-04-22"),
   mkPaiementNsia("p4", "d8", "s10", "2026-05-31"),
 ];
+
+const PAIEMENTS_NSIA_FICTIFS: PaiementNsia[] = DECLARATIONS_FICTIVES
+  .filter((_, index) => index % 3 !== 0)
+  .map((d, index) => {
+    const souscription = SOUSCRIPTIONS_NSIA.find((s) => s.membreId === d.membreId)!;
+    return mkPaiementNsia(`pf${String(index + 1).padStart(2, "0")}`, d.id, souscription.id, d.dateDeclaration);
+  });
+
+export const PAIEMENTS_NSIA: PaiementNsia[] = [...PAIEMENTS_NSIA_INITIAUX, ...PAIEMENTS_NSIA_FICTIFS];
 
 function mkPaiementNsia(id: string, declId: string, souscriptionId: string, date: string): PaiementNsia {
   const s = SOUSCRIPTIONS_NSIA.find((x) => x.id === souscriptionId)!;
