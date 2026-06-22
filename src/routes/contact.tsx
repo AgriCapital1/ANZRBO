@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -78,7 +78,12 @@ function Page() {
       <SiteHeader />
       <section className="container mx-auto max-w-5xl px-4 py-16">
         <h1 className="text-4xl font-bold tracking-tight">Contactez l'association ANZRBO</h1>
-        <p className="mt-3 text-muted-foreground">Joignez l'ANZRBO ou écrivez-nous via le formulaire.</p>
+        <p className="mt-3 text-muted-foreground">
+          Joignez l'ANZRBO ou écrivez-nous via le formulaire. Pour un décès, suivez d'abord le{" "}
+          <Link to="/guide/procedure-deces" className="font-medium text-primary underline-offset-4 hover:underline">
+            guide procédure décès
+          </Link>.
+        </p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
           <Card><CardContent className="p-6 text-center"><MapPin className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">Siège — Bonon, Côte d'Ivoire</p></CardContent></Card>
