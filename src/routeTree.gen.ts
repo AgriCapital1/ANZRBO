@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as NsiaRouteImport } from './routes/nsia'
 import { Route as LoginRouteImport } from './routes/login'
@@ -27,6 +28,11 @@ import { Route as AdminMembresIndexRouteImport } from './routes/admin/membres.in
 import { Route as AdminNsiaNouveauRouteImport } from './routes/admin/nsia.nouveau'
 import { Route as AdminMembresNouveauRouteImport } from './routes/admin/membres.nouveau'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
   '/admin/diagnostics': typeof AdminDiagnosticsRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/nsia'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/assistances'
     | '/admin/cotisations'
     | '/admin/diagnostics'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/nsia'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/assistances'
     | '/admin/cotisations'
     | '/admin/diagnostics'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/nsia'
     | '/scanner'
+    | '/sitemap.xml'
     | '/admin/assistances'
     | '/admin/cotisations'
     | '/admin/diagnostics'
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   NsiaRoute: typeof NsiaRoute
   ScannerRoute: typeof ScannerRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AdminAssistancesRoute: typeof AdminAssistancesRoute
   AdminCotisationsRoute: typeof AdminCotisationsRoute
   AdminDiagnosticsRoute: typeof AdminDiagnosticsRoute
@@ -249,6 +262,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scanner': {
       id: '/scanner'
       path: '/scanner'
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   NsiaRoute: NsiaRoute,
   ScannerRoute: ScannerRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   AdminAssistancesRoute: AdminAssistancesRoute,
   AdminCotisationsRoute: AdminCotisationsRoute,
   AdminDiagnosticsRoute: AdminDiagnosticsRoute,

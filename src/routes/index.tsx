@@ -11,10 +11,14 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "ANZRBO — Association des N'Zipris Résidents à Bonon" },
-      { name: "description", content: "ANZRBO — Entraide et assistance mutuelle au décès des N'Zipris résidents de la sous-préfecture de Bonon, Côte d'Ivoire." },
+      { name: "description", content: "Accueil de l'ANZRBO : association d'entraide N'Zipris à Bonon. Cotisations solidaires, assistance au décès et vérification publique des membres." },
       { property: "og:title", content: "ANZRBO — Association des N'Zipris Résidents à Bonon" },
       { property: "og:description", content: "Solidarité, entraide et assistance au décès — Bonon, Côte d'Ivoire." },
+      { property: "og:url", content: "https://anzrbo1.lovable.app/" },
+      { name: "twitter:title", content: "ANZRBO — Association des N'Zipris Résidents à Bonon" },
+      { name: "twitter:description", content: "Solidarité, entraide et assistance au décès — Bonon, Côte d'Ivoire." },
     ],
+    links: [{ rel: "canonical", href: "https://anzrbo1.lovable.app/" }],
   }),
 });
 
