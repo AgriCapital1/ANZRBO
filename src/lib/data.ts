@@ -258,7 +258,7 @@ function genererMembresFictifs(): Membre[] {
 const MEMBRES_FICTIFS_GENERES = genererMembresFictifs();
 export const MEMBRES: Membre[] = [...MEMBRES_INITIAUX, ...MEMBRES_FICTIFS_GENERES];
 
-export const AYANTS_DROIT: AyantDroit[] = [
+const AYANTS_DROIT_INITIAUX: AyantDroit[] = [
   // M01
   { id: "a01a", membreId: "m01", lien: "conjoint", nom: "Ayant droit 01A", dateNaissance: "1965-04-10", lieuNaissance: "Lieu démo" },
   { id: "a01b", membreId: "m01", lien: "mere", nom: "Ayant droit 01B", dateNaissance: "1938-01-01", lieuNaissance: "Lieu démo" },
@@ -292,8 +292,26 @@ export const AYANTS_DROIT: AyantDroit[] = [
   { id: "a10b", membreId: "m10", lien: "conjoint", nom: "Ayant droit 10B", dateNaissance: "1985-07-07", lieuNaissance: "Lieu démo" },
 ];
 
+function genererAyantsDroitFictifs(): AyantDroit[] {
+  const liens: AyantDroit["lien"][] = ["conjoint", "pere", "mere", "enfant", "beau-pere", "belle-mere"];
+  return MEMBRES_FICTIFS_GENERES.flatMap((m, index) => {
+    const rang = index + 11;
+    const total = 2 + (rang % 3);
+    return Array.from({ length: total }, (_, j) => ({
+      id: `a${String(rang).padStart(3, "0")}${String.fromCharCode(97 + j)}`,
+      membreId: m.id,
+      lien: liens[(rang + j) % liens.length],
+      nom: `Ayant droit fictif ${String(rang).padStart(3, "0")}-${j + 1}`,
+      dateNaissance: `${1935 + ((rang + j * 7) % 55)}-${String(((rang + j) % 12) + 1).padStart(2, "0")}-${String(((rang + j * 2) % 26) + 1).padStart(2, "0")}`,
+      lieuNaissance: VILLAGES_FICTIFS[(rang + j) % VILLAGES_FICTIFS.length],
+    }));
+  });
+}
+
+export const AYANTS_DROIT: AyantDroit[] = [...AYANTS_DROIT_INITIAUX, ...genererAyantsDroitFictifs()];
+
 // 6 souscriptions NSIA (M01, M04, M05, M06, M09, M10)
-export const SOUSCRIPTIONS_NSIA: SouscriptionNsia[] = [
+const SOUSCRIPTIONS_NSIA_INITIALES: SouscriptionNsia[] = [
   mkSouscription("s01", "m01", 5, 2, "2024-08-10"),  // 12500 x 2 = 25000
   mkSouscription("s04", "m04", 3, 3, "2024-10-05"),  // 7500 x 3 = 22500
   mkSouscription("s05", "m05", 6, 2, "2024-11-20"),  // 15000 x 2 = 30000
@@ -310,8 +328,23 @@ function mkSouscription(id: string, membreId: string, formule: number, nbPersonn
   };
 }
 
+const SOUSCRIPTIONS_NSIA_FICTIVES = MEMBRES_FICTIFS_GENERES
+  .filter((m, index) => m.statut !== "suspendu" && index % 2 === 0)
+  .map((m, index) => {
+    const rang = Number(m.id.slice(1));
+    return mkSouscription(
+      `s${m.id.slice(1)}`,
+      m.id,
+      ((rang + index) % FORMULES_NSIA.length) + 1,
+      1 + (rang % 5),
+      `${2024 + (rang % 3)}-${String((rang % 12) + 1).padStart(2, "0")}-${String((rang % 24) + 1).padStart(2, "0")}`,
+    );
+  });
+
+export const SOUSCRIPTIONS_NSIA: SouscriptionNsia[] = [...SOUSCRIPTIONS_NSIA_INITIALES, ...SOUSCRIPTIONS_NSIA_FICTIVES];
+
 // 8 déclarations de décès (3 principaux + 5 ayants droit)
-export const DECLARATIONS: DeclarationDeces[] = [
+const DECLARATIONS_INITIALES: DeclarationDeces[] = [
   { id: "d1", membreId: "m01", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-04-12", dateDeclaration: "2026-04-13" },
   { id: "d2", membreId: "m02", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-04-25", dateDeclaration: "2026-04-26" },
   { id: "d3", membreId: "m03", defuntType: "principal", nomDefunt: "Défunt démo", dateDeces: "2026-05-08", dateDeclaration: "2026-05-09" },
