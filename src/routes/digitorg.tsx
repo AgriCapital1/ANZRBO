@@ -3,12 +3,13 @@ import { useEffect, useMemo } from "react";
 import { DashboardHeader, DIGITORG_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import { MEMBRES, FRAIS_INSCRIPTION_DIGITORG, statsAnzrbo } from "@/lib/data";
 import { Building2, Sparkles, Wallet, Users, ArrowUpRight } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/digitorg")({
+  beforeLoad: () => { const r = clientRoleGuard(["digitorg"]); if (r) throw r; },
   component: DigitOrgDashboard,
   head: () => ({ meta: [
     { title: "DigitOrg — Pilotage maître d'œuvre" },

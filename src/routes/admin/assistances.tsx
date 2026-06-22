@@ -4,11 +4,12 @@ import { DashboardHeader, ADMIN_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAuth } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import { ASSISTANCES, DECLARATIONS, ASSISTANCE_ANZRBO, PAIEMENTS_NSIA } from "@/lib/data";
 import { HandCoins, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 export const Route = createFileRoute("/admin/assistances")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: Page,
   head: () => ({ meta: [{ title: "Assistances décès — Admin ANZRBO" }] }),
 });

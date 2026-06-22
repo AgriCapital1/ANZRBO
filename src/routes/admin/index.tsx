@@ -12,13 +12,14 @@ import {
   Users, UserCheck, UserMinus, UserX, Wallet, HandCoins, AlertTriangle,
   FileCheck, ShieldCheck, Activity, ArrowUpRight, Sparkles, Building2,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import {
   MEMBRES, DECLARATIONS, ASSISTANCES, statsAnzrbo, aJour,
   COTISATIONS, ayantsDroitDe,
 } from "@/lib/data";
 
 export const Route = createFileRoute("/admin/")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: AdminDashboard,
   head: () => ({ meta: [
     { title: "Tableau de bord — Admin ANZRBO" },

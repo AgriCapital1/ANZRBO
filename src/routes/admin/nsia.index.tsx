@@ -4,11 +4,12 @@ import { DashboardHeader, ADMIN_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAuth } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import { SOUSCRIPTIONS_NSIA, PAIEMENTS_NSIA, DECLARATIONS, FORMULES_NSIA, membre } from "@/lib/data";
 import { ShieldCheck, Plus } from "lucide-react";
 
 export const Route = createFileRoute("/admin/nsia/")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: Page,
   head: () => ({ meta: [{ title: "NSIA — Souscriptions et versements" }] }),
 });
