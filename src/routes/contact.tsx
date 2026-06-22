@@ -15,7 +15,34 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — ANZRBO" },
-      { name: "description", content: "Contactez l'ANZRBO. Envoyez-nous un message, nous vous répondrons rapidement." },
+      { name: "description", content: "Contactez l'ANZRBO à Bonon, Côte d'Ivoire : téléphone, e-mail et formulaire de contact." },
+      { property: "og:title", content: "Contact — ANZRBO" },
+      { property: "og:description", content: "Coordonnées et formulaire de contact de l'Association des N'Zipris Résidents à Bonon." },
+      { property: "og:url", content: "https://anzrbo1.lovable.app/contact" },
+      { name: "twitter:title", content: "Contact — ANZRBO" },
+      { name: "twitter:description", content: "Coordonnées et formulaire de contact de l'ANZRBO." },
+    ],
+    links: [{ rel: "canonical", href: "https://anzrbo1.lovable.app/contact" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "ANZRBO — Association des N'Zipris Résidents à Bonon",
+          url: "https://anzrbo1.lovable.app",
+          email: "contact@anzrbo.org",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Bonon",
+            addressCountry: "CI",
+          },
+          contactPoint: [
+            { "@type": "ContactPoint", telephone: "+225 07 58 89 43 63", contactType: "customer service", areaServed: "CI" },
+            { "@type": "ContactPoint", telephone: "+225 07 08 27 67 51", contactType: "customer service", areaServed: "CI" },
+          ],
+        }),
+      },
     ],
   }),
 });
