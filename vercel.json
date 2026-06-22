@@ -4,7 +4,6 @@
   "devCommand": "bun run dev",
   "installCommand": "bun install --frozen-lockfile --omit=optional",
   "framework": null,
-  "outputDirectory": ".output",
   "headers": [
     {
       "source": "/(.*)",
