@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faq = [
   { q: "Qui peut adhérer à l'ANZRBO ?", a: "Les N'Zipris résidents à Bonon et les membres acceptés selon les règles internes de l'association." },
   { q: "Quel est le principe de solidarité ?", a: "Chaque membre participe aux cotisations prévues afin de soutenir les familles lors des décès déclarés." },
+  { q: "Comment déclarer un décès ?", a: "La procédure commence par le signalement au bureau ANZRBO, la vérification du membre ou de l'ayant droit, puis la constitution du dossier de décès." },
   { q: "Comment vérifier un membre ?", a: "La vérification publique se fait par numéro de téléphone ou par QR code." },
   { q: "Comment obtenir ma carte de membre ?", a: "Après validation de votre dossier, votre carte est générée et téléchargeable depuis votre espace membre." },
   { q: "Mes données sont-elles protégées ?", a: "Oui. Les accès sont cloisonnés par rôle et les informations sensibles ne sont pas exposées publiquement." },
@@ -47,6 +48,12 @@ function Page() {
       <SiteHeader />
       <section className="container mx-auto max-w-3xl px-4 py-16">
         <h1 className="text-4xl font-bold tracking-tight">Foire aux questions ANZRBO</h1>
+        <p className="mt-3 text-muted-foreground">
+          Pour les démarches liées à un décès, consultez le{" "}
+          <Link to="/guide/procedure-deces" className="font-medium text-primary underline-offset-4 hover:underline">
+            guide procédure décès ANZRBO
+          </Link>.
+        </p>
         <Accordion type="single" collapsible className="mt-8">
           {faq.map((f, i) => (
             <AccordionItem key={i} value={`i${i}`}>
