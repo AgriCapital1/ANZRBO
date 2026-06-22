@@ -116,7 +116,7 @@ function num(i: number) {
   return `ANZRBO-2026-${String(i).padStart(5, "0")}`;
 }
 
-export const MEMBRES: Membre[] = [
+const MEMBRES_INITIAUX: Membre[] = [
   {
     id: "m01", numeroMembre: num(1), photoUrl: null,
     nom: "MEMBRE-01", prenoms: "Démo 01", telephone: "0000000001",
@@ -208,6 +208,55 @@ export const MEMBRES: Membre[] = [
     paiementInscription: { mode: "mobile_money", typePreuve: "id_transaction", idTransaction: "MM-2024-0010", montant: 1500, date: "2024-11-09" },
   },
 ];
+
+const NOMS_FICTIFS = ["Koffi", "Kouame", "Yao", "N'Guessan", "Konan", "Kadio", "Traore", "Bamba", "Amani", "Kouadio"];
+const PRENOMS_FICTIFS = ["Awa", "Jean", "Mariam", "Serge", "Akissi", "Didier", "Affoué", "Benoît", "Rosine", "Armand"];
+const VILLAGES_FICTIFS = ["Zaguiéta", "Gouéta", "N'Drikro", "Blaisekro", "Kouassikro", "Dioulabougou", "Belleville", "Yaokro"];
+
+function telephoneFictif(i: number) {
+  return `07${String(58000000 + i * 137).padStart(8, "0")}`;
+}
+
+function genererMembresFictifs(): Membre[] {
+  return Array.from({ length: 90 }, (_, offset) => {
+    const i = offset + 11;
+    const statut: Statut = i % 29 === 0 ? "suspendu" : i % 19 === 0 ? "decede" : "actif";
+    const mois = ((i % 12) + 1).toString().padStart(2, "0");
+    const jour = ((i % 26) + 1).toString().padStart(2, "0");
+    return {
+      id: `m${String(i).padStart(3, "0")}`,
+      numeroMembre: num(i),
+      photoUrl: null,
+      nom: `${NOMS_FICTIFS[i % NOMS_FICTIFS.length].toUpperCase()}-${String(i).padStart(3, "0")}`,
+      prenoms: `${PRENOMS_FICTIFS[i % PRENOMS_FICTIFS.length]} Fictif ${String(i).padStart(2, "0")}`,
+      telephone: telephoneFictif(i),
+      contact2: i % 4 === 0 ? telephoneFictif(i + 500) : undefined,
+      sousPrefecture: "Bonon",
+      village: VILLAGES_FICTIFS[i % VILLAGES_FICTIFS.length],
+      quartier: i % 3 === 0 ? "Quartier résidentiel" : "Quartier central",
+      dateNaissance: `${1960 + (i % 35)}-${mois}-${jour}`,
+      lieuNaissance: VILLAGES_FICTIFS[(i + 2) % VILLAGES_FICTIFS.length],
+      dateInscription: `${2024 + (i % 3)}-${mois}-${jour}`,
+      statut,
+      urgence: {
+        nom: `Contact urgence ${String(i).padStart(3, "0")}`,
+        contact1: telephoneFictif(i + 900),
+        contact2: i % 5 === 0 ? telephoneFictif(i + 950) : undefined,
+        adresse: `${VILLAGES_FICTIFS[i % VILLAGES_FICTIFS.length]}, Bonon`,
+      },
+      paiementInscription: {
+        mode: i % 2 === 0 ? "mobile_money" : "especes",
+        typePreuve: i % 4 === 0 ? "photo_document" : "id_transaction",
+        idTransaction: i % 4 === 0 ? undefined : `PAY-${2024 + (i % 3)}-${String(i).padStart(4, "0")}`,
+        montant: FRAIS_INSCRIPTION_DIGITORG,
+        date: `${2024 + (i % 3)}-${mois}-${jour}`,
+      },
+    };
+  });
+}
+
+const MEMBRES_FICTIFS_GENERES = genererMembresFictifs();
+export const MEMBRES: Membre[] = [...MEMBRES_INITIAUX, ...MEMBRES_FICTIFS_GENERES];
 
 export const AYANTS_DROIT: AyantDroit[] = [
   // M01
