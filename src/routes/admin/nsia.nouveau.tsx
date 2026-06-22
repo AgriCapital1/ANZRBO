@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAuth } from "@/lib/auth";
+import { useAuth } , clientRoleGuard } from "@/lib/auth";
 import {
   MEMBRES, FORMULES_NSIA, SOUSCRIPTIONS_NSIA, ayantsDroitDe, souscriptionDe,
 } from "@/lib/data";
@@ -14,6 +14,7 @@ import { ShieldCheck, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/nsia/nouveau")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: Page,
   head: () => ({ meta: [{ title: "Souscrire un membre à NSIA — Admin ANZRBO" }] }),
 });

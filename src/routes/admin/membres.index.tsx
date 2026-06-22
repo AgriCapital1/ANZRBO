@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAuth } from "@/lib/auth";
+import { useAuth } , clientRoleGuard } from "@/lib/auth";
 import {
   MEMBRES, ayantsDroitDe, cotisationsDuMembre, souscriptionDe,
   declarationsDuMembre, aJour, Membre,
@@ -15,6 +15,7 @@ import {
 import { Search, Users, Eye } from "lucide-react";
 
 export const Route = createFileRoute("/admin/membres/")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: ListeMembres,
   head: () => ({ meta: [{ title: "Membres — Admin ANZRBO" }] }),
 });

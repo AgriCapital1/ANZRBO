@@ -12,7 +12,7 @@ import {
   readClientDiagnostics,
   type ClientDiagnosticEvent,
 } from "@/lib/client-diagnostics";
-import { useAuth } from "@/lib/auth";
+import { useAuth } , clientRoleGuard } from "@/lib/auth";
 
 type BuildManifest = {
   checkedAt?: string;
@@ -31,6 +31,7 @@ type RuntimeState = {
 };
 
 export const Route = createFileRoute("/admin/diagnostics")({
+  beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
   component: AdminDiagnostics,
   head: () => ({ meta: [
     { title: "Diagnostics build — Admin ANZRBO" },
