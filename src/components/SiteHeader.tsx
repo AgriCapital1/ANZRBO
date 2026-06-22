@@ -15,7 +15,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4">
         <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="ANZRBO" className="h-12 w-auto md:h-14" />
+          <img src={logo} alt="Association ANZRBO — Entraide et Solidarité" className="h-12 w-auto md:h-14" />
           <span className="hidden text-sm font-semibold uppercase tracking-wider text-primary sm:inline">ANZRBO</span>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">

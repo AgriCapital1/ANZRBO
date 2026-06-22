@@ -78,7 +78,7 @@ function Index() {
 
           <div className="relative">
             <div className="rounded-2xl border bg-card p-8 shadow-xl">
-              <img src={logo} alt="ANZRBO" className="mx-auto h-32 w-auto md:h-40" />
+              <img src={logo} alt="Association ANZRBO — Entraide et Solidarité" className="mx-auto h-32 w-auto md:h-40" />
               <p className="mt-6 text-center text-sm italic text-muted-foreground">
                 « Unis dans la solidarité, forts dans l'entraide »
               </p>
