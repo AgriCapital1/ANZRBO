@@ -88,14 +88,9 @@ function Page() {
               <Button type="submit" className="w-full">Se connecter</Button>
             </form>
 
-            <div className="mt-6 rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
-              <p className="font-semibold text-foreground">Comptes de démonstration</p>
-              <ul className="mt-1 space-y-0.5">
-                <li>Admin ANZRBO : <span className="font-mono">0759566087</span> / 12345678 → /admin</li>
-                <li>DigitOrg : <span className="font-mono">admin</span> / 12345678 → /digitorg</li>
-                <li>Partenaire NSIA : <span className="font-mono">nsia</span> / 12345678 → /nsia</li>
-              </ul>
-            </div>
+            <p className="mt-6 rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+              Accès strictement réservé. Contactez l'administrateur ANZRBO pour obtenir vos identifiants.
+            </p>
           </CardContent>
         </Card>
       </section>
