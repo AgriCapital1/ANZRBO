@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="mt-24 border-t bg-secondary/40">
       <div className="container mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-3">
         <div>
-          <img src={logo} alt="ANZRBO" className="h-12 w-auto" />
+          <img src={logo} alt="Association ANZRBO — Entraide et Solidarité" className="h-12 w-auto" />
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
             Association des N'Zipris Résidents à Bonon — Entraide et assistance mutuelle au décès, sous-préfecture de Bonon, Côte d'Ivoire.
           </p>
