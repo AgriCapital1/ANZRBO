@@ -1,7 +1,4 @@
-// ANZRBO Service Worker kill-switch — neutralisation définitive.
-// Ce fichier reste au même chemin pour reprendre le contrôle des anciens navigateurs,
-// supprimer les anciens caches applicatifs, puis se désinscrire.
-
+// ANZRBO service worker kill-switch — garde l'ancien chemin si un navigateur l'a déjà enregistré.
 function isAppShellCache(name) {
   return /(^|-)precache-v\d+-|(^|-)runtime-|(^|-)googleAnalytics-|anzrbo|workbox/i.test(name);
 }

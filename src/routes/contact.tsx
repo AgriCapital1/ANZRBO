@@ -8,15 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Loader2, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/contact")({
   component: Page,
   head: () => ({
     meta: [
-      { title: "Contact — MUGEC-CI" },
-      { name: "description", content: "Contactez la MUGEC-CI. Envoyez-nous un message, nous vous répondrons rapidement." },
+      { title: "Contact — ANZRBO" },
+      { name: "description", content: "Contactez l'ANZRBO. Envoyez-nous un message, nous vous répondrons rapidement." },
     ],
   }),
 });
@@ -38,27 +37,13 @@ function Page() {
     if (!/^\S+@\S+\.\S+$/.test(form.email)) { setErr("E-mail invalide."); return; }
     if (form.message.trim().length < 5) { setErr("Votre message est trop court."); return; }
     setBusy(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase.from("contact_messages").insert({
-        nom: form.nom.trim(),
-        email: form.email.trim(),
-        telephone: form.telephone.trim() || null,
-        sujet: form.sujet.trim() || null,
-        message: form.message.trim(),
-        user_id: user?.id ?? null,
-      });
-      if (error) throw error;
+    // Envoi local (UI uniquement, sans base de données)
+    setTimeout(() => {
       setSent(true);
-      toast.success("Message envoyé avec succès");
+      toast.success("Message envoyé. L'association vous recontactera par SMS / WhatsApp.");
       setForm({ nom: "", email: "", telephone: "", sujet: "", message: "" });
-    } catch (e: unknown) {
-      console.error("contact submit failed", e);
-      setErr("Une erreur s'est produite. Veuillez réessayer plus tard.");
-      toast.error("L'envoi a échoué");
-    } finally {
       setBusy(false);
-    }
+    }, 400);
   }
 
   return (
@@ -66,12 +51,12 @@ function Page() {
       <SiteHeader />
       <section className="container mx-auto max-w-5xl px-4 py-16">
         <h1 className="text-4xl font-bold tracking-tight">Contact</h1>
-        <p className="mt-3 text-muted-foreground">Joignez la MUGEC-CI ou écrivez-nous via le formulaire.</p>
+        <p className="mt-3 text-muted-foreground">Joignez l'ANZRBO ou écrivez-nous via le formulaire.</p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
-          <Card><CardContent className="p-6 text-center"><MapPin className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">Siège — Abidjan, Côte d'Ivoire</p></CardContent></Card>
+          <Card><CardContent className="p-6 text-center"><MapPin className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">Siège — Bonon, Côte d'Ivoire</p></CardContent></Card>
           <Card><CardContent className="p-6 text-center"><Phone className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">07 58 89 43 63 / 07 08 27 67 51</p></CardContent></Card>
-          <Card><CardContent className="p-6 text-center"><Mail className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">contact@mugec-ci.org</p></CardContent></Card>
+          <Card><CardContent className="p-6 text-center"><Mail className="mx-auto h-8 w-8 text-primary" /><p className="mt-3 text-sm">contact@anzrbo.org</p></CardContent></Card>
         </div>
 
         <Card className="mt-10">

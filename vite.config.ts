@@ -7,8 +7,15 @@ import tsConfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig(({ mode }) => {
   const loadedEnv = loadEnv(mode, process.cwd(), "VITE_");
+  const viteEnv = {
+    ...loadedEnv,
+    VITE_VERCEL_ENV: process.env.VERCEL_ENV ?? loadedEnv.VITE_VERCEL_ENV ?? "",
+    VITE_VERCEL_URL: process.env.VERCEL_URL ?? loadedEnv.VITE_VERCEL_URL ?? "",
+    VITE_VERCEL_GIT_COMMIT_SHA:
+      process.env.VERCEL_GIT_COMMIT_SHA ?? loadedEnv.VITE_VERCEL_GIT_COMMIT_SHA ?? "",
+  };
   const envDefine = Object.fromEntries(
-    Object.entries(loadedEnv).map(([key, value]) => [`import.meta.env.${key}`, JSON.stringify(value)]),
+    Object.entries(viteEnv).map(([key, value]) => [`import.meta.env.${key}`, JSON.stringify(value)]),
   );
 
   return {
@@ -35,7 +42,9 @@ export default defineConfig(({ mode }) => {
         },
         server: { entry: "server" },
       }),
-      nitro({ preset: "vercel" }),
+      nitro({
+        preset: "vercel",
+      }),
       viteReact(),
     ],
   };

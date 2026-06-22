@@ -12,19 +12,19 @@ export const Route = createFileRoute("/scanner")({
   component: Page,
   head: () => ({
     meta: [
-      { title: "Scanner un QR Code — MUGEC-CI" },
-      { name: "description", content: "Vérifiez l'authenticité d'une carte de membre MUGEC-CI en scannant le QR code." },
+      { title: "Scanner un QR Code — ANZRBO" },
+      { name: "description", content: "Vérifiez une carte membre ANZRBO par QR code ou numéro de téléphone." },
     ],
   }),
 });
 
-function parseMatricule(raw: string): string | null {
+function parseTelephone(raw: string): string | null {
   const v = raw.trim();
   if (!v) return null;
-  // Accepte une URL .../m/MUGEC-XXXX ou .../verifier/MUGEC-XXXX ou un matricule brut
+  // Accepte une URL .../verifier/0700000000 ou un numéro brut
   const m = v.match(/(?:\/m\/|\/verifier\/)([^/?#]+)/i);
   if (m) return decodeURIComponent(m[1]);
-  return v;
+  return v.replace(/[^+\d]/g, "");
 }
 
 function Page() {
@@ -53,10 +53,10 @@ function Page() {
       await html5.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 240, height: 240 } },
-        (decoded: string) => {
-          const id = parseMatricule(decoded);
+        (decoded) => {
+          const id = parseTelephone(decoded);
           if (id) {
-            html5.stop().then(() => nav({ to: "/verifier/$matricule", params: { matricule: id } }));
+            html5.stop().then(() => nav({ to: "/verifier/$telephone", params: { telephone: id } }));
           }
         },
         () => {},
@@ -72,8 +72,8 @@ function Page() {
 
   function onManual(e: React.FormEvent) {
     e.preventDefault();
-    const id = parseMatricule(manual);
-    if (id) nav({ to: "/verifier/$matricule", params: { matricule: id } });
+    const id = parseTelephone(manual);
+    if (id) nav({ to: "/verifier/$telephone", params: { telephone: id } });
   }
 
   return (
@@ -86,8 +86,7 @@ function Page() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Scanner un QR Code</h1>
           <p className="mt-2 text-muted-foreground">
-            Vérifiez l'authenticité d'une carte de membre MUGEC-CI. La connexion est requise pour
-            consulter les informations du membre.
+            Vérifiez une carte membre ANZRBO par QR code ou saisie du numéro de téléphone.
           </p>
         </div>
 
@@ -112,8 +111,8 @@ function Page() {
             </div>
 
             <form onSubmit={onManual} className="space-y-3">
-              <Label htmlFor="m">Matricule MUGEC-CI</Label>
-              <Input id="m" placeholder="Ex: MUGEC-2026-00001" value={manual} onChange={(e) => setManual(e.target.value)} />
+              <Label htmlFor="m">Numéro de téléphone du membre</Label>
+              <Input id="m" inputMode="tel" placeholder="Ex: 07 58 89 43 63" value={manual} onChange={(e) => setManual(e.target.value)} />
               <Button type="submit" variant="outline" className="w-full" disabled={!manual.trim()}>
                 Vérifier
               </Button>

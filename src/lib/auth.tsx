@@ -1,92 +1,93 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase, isSupabaseConfigured } from "./supabase";
+
+// Authentification 100% locale (sans base de données).
+// 3 comptes fictifs (mot de passe commun : 12345678) :
+//   - 0759566087  → Admin ANZRBO       → /admin
+//   - admin       → Admin DigitOrg     → /digitorg
+//   - nsia        → Partenaire NSIA    → /nsia
+
+export type Role = "admin_anzrbo" | "digitorg" | "nsia";
+
+export type LocalUser = {
+  id: string;
+  identifier: string;
+  nom: string;
+  prenoms: string;
+  role: Role;
+  home: "/admin" | "/digitorg" | "/nsia";
+};
+
+type Account = LocalUser & { password: string };
+
+const STORAGE_KEY = "anzrbo_local_session_v2";
+
+const ACCOUNTS: Account[] = [
+  {
+    id: "anzrbo-admin", identifier: "0759566087", password: "12345678",
+    nom: "ADMIN", prenoms: "ANZRBO", role: "admin_anzrbo", home: "/admin",
+  },
+  {
+    id: "digitorg-admin", identifier: "admin", password: "12345678",
+    nom: "DIGITORG", prenoms: "Maître d'œuvre", role: "digitorg", home: "/digitorg",
+  },
+  {
+    id: "nsia-partner", identifier: "nsia", password: "12345678",
+    nom: "NSIA", prenoms: "Partenaire Assurance", role: "nsia", home: "/nsia",
+  },
+];
+
+function norm(v: string) {
+  return v.trim().toLowerCase();
+}
+
+export function tryLogin(identifier: string, password: string): LocalUser | null {
+  const id = norm(identifier).replace(/\s+/g, "");
+  for (const a of ACCOUNTS) {
+    const candidate = norm(a.identifier);
+    const phoneEq = /^\d+$/.test(candidate) && id.replace(/\D/g, "") === candidate;
+    if ((id === candidate || phoneEq) && password === a.password) {
+      const { password: _p, ...user } = a;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      }
+      return user;
+    }
+  }
+  return null;
+}
+
+function readStoredUser(): LocalUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as LocalUser) : null;
+  } catch { return null; }
+}
 
 type Ctx = {
-  user: User | null;
-  session: Session | null;
+  user: LocalUser | null;
   loading: boolean;
+  signIn: (identifier: string, password: string) => LocalUser | null;
   signOut: () => Promise<void>;
 };
 
-export async function getCurrentSupabaseUser(): Promise<User | null> {
-  if (!isSupabaseConfigured) return null;
-  const storedUser = readStoredSession()?.user ?? null;
-  const freshUser = supabase.auth
-    .getSession()
-    .then(({ data }) => data.session?.user ?? storedUser)
-    .catch(() => storedUser);
-  const timeout = new Promise<User | null>((resolve) => {
-    window.setTimeout(() => resolve(storedUser), 800);
-  });
-  return Promise.race([freshUser, timeout]);
-}
-
-function readStoredSession(): Session | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const ref = new URL(import.meta.env.VITE_SUPABASE_URL).hostname.split(".")[0];
-    const key = `sb-${ref}-auth-token`;
-    const raw = window.localStorage.getItem(key) ?? Object.entries(window.localStorage).find(([k]) => k.startsWith("sb-") && k.endsWith("-auth-token"))?.[1];
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Session;
-    return parsed?.access_token && parsed?.user ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-const AuthCtx = createContext<Ctx>({ user: null, session: null, loading: false, signOut: async () => {} });
+const AuthCtx = createContext<Ctx>({
+  user: null, loading: false, signIn: () => null, signOut: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(() => readStoredSession());
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
-    setSession(readStoredSession());
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      setSession(data.session ?? readStoredSession());
-      setLoading(false);
-    }).catch(() => {
-      if (mounted) setLoading(false);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
-      setLoading(false);
-    });
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
+  const [user, setUser] = useState<LocalUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { setUser(readStoredUser()); setLoading(false); }, []);
   return (
     <AuthCtx.Provider
       value={{
-        user: session?.user ?? null,
-        session,
-        loading,
+        user, loading,
+        signIn: (id, pwd) => { const u = tryLogin(id, pwd); if (u) setUser(u); return u; },
         signOut: async () => {
-          try {
-            await supabase.auth.signOut();
-          } catch {}
-          try {
-            if (typeof window !== "undefined") {
-              Object.keys(window.localStorage)
-                .filter((k) => k.startsWith("sb-") && k.endsWith("-auth-token"))
-                .forEach((k) => window.localStorage.removeItem(k));
-            }
-          } catch {}
-          setSession(null);
-          if (typeof window !== "undefined") {
-            window.location.assign("/login");
-          }
+          try { if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY); } catch {}
+          setUser(null);
+          if (typeof window !== "undefined") window.location.assign("/login");
         },
       }}
     >

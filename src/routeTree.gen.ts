@@ -9,50 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ScannerRouteImport } from './routes/scanner'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as OpportunitesRouteImport } from './routes/opportunites'
+import { Route as NsiaRouteImport } from './routes/nsia'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as InscriptionRouteImport } from './routes/inscription'
-import { Route as ForumRouteImport } from './routes/forum'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as DigitorgRouteImport } from './routes/digitorg'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ActualitesRouteImport } from './routes/actualites'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MembreIndexRouteImport } from './routes/membre/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as VerifierMatriculeRouteImport } from './routes/verifier.$matricule'
-import { Route as MembreProfilRouteImport } from './routes/membre/profil'
-import { Route as MembreFicheRouteImport } from './routes/membre/fiche'
-import { Route as MembreDocumentsRouteImport } from './routes/membre/documents'
-import { Route as MembreCotisationsRouteImport } from './routes/membre/cotisations'
-import { Route as MembreCarteRouteImport } from './routes/membre/carte'
-import { Route as AdminPrestationsRouteImport } from './routes/admin/prestations'
-import { Route as AdminNotificationsRouteImport } from './routes/admin/notifications'
-import { Route as AdminMiprojetRouteImport } from './routes/admin/miprojet'
-import { Route as AdminMembresRouteImport } from './routes/admin/membres'
+import { Route as VerifierTelephoneRouteImport } from './routes/verifier.$telephone'
+import { Route as AdminNsiaRouteImport } from './routes/admin/nsia'
+import { Route as AdminDiagnosticsRouteImport } from './routes/admin/diagnostics'
 import { Route as AdminCotisationsRouteImport } from './routes/admin/cotisations'
+import { Route as AdminAssistancesRouteImport } from './routes/admin/assistances'
+import { Route as AdminNsiaIndexRouteImport } from './routes/admin/nsia.index'
+import { Route as AdminMembresIndexRouteImport } from './routes/admin/membres.index'
+import { Route as AdminNsiaNouveauRouteImport } from './routes/admin/nsia.nouveau'
+import { Route as AdminMembresNouveauRouteImport } from './routes/admin/membres.nouveau'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ScannerRoute = ScannerRouteImport.update({
   id: '/scanner',
   path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OpportunitesRoute = OpportunitesRouteImport.update({
-  id: '/opportunites',
-  path: '/opportunites',
+const NsiaRoute = NsiaRouteImport.update({
+  id: '/nsia',
+  path: '/nsia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -60,19 +42,14 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InscriptionRoute = InscriptionRouteImport.update({
-  id: '/inscription',
-  path: '/inscription',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForumRoute = ForumRouteImport.update({
-  id: '/forum',
-  path: '/forum',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigitorgRoute = DigitorgRouteImport.update({
+  id: '/digitorg',
+  path: '/digitorg',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -80,282 +57,198 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActualitesRoute = ActualitesRouteImport.update({
-  id: '/actualites',
-  path: '/actualites',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MembreIndexRoute = MembreIndexRouteImport.update({
-  id: '/membre/',
-  path: '/membre/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const VerifierMatriculeRoute = VerifierMatriculeRouteImport.update({
-  id: '/verifier/$matricule',
-  path: '/verifier/$matricule',
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MembreProfilRoute = MembreProfilRouteImport.update({
-  id: '/membre/profil',
-  path: '/membre/profil',
+const VerifierTelephoneRoute = VerifierTelephoneRouteImport.update({
+  id: '/verifier/$telephone',
+  path: '/verifier/$telephone',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MembreFicheRoute = MembreFicheRouteImport.update({
-  id: '/membre/fiche',
-  path: '/membre/fiche',
+const AdminNsiaRoute = AdminNsiaRouteImport.update({
+  id: '/admin/nsia',
+  path: '/admin/nsia',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MembreDocumentsRoute = MembreDocumentsRouteImport.update({
-  id: '/membre/documents',
-  path: '/membre/documents',
+const AdminDiagnosticsRoute = AdminDiagnosticsRouteImport.update({
+  id: '/admin/diagnostics',
+  path: '/admin/diagnostics',
   getParentRoute: () => rootRouteImport,
-} as any)
-const MembreCotisationsRoute = MembreCotisationsRouteImport.update({
-  id: '/membre/cotisations',
-  path: '/membre/cotisations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MembreCarteRoute = MembreCarteRouteImport.update({
-  id: '/membre/carte',
-  path: '/membre/carte',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminPrestationsRoute = AdminPrestationsRouteImport.update({
-  id: '/prestations',
-  path: '/prestations',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMiprojetRoute = AdminMiprojetRouteImport.update({
-  id: '/miprojet',
-  path: '/miprojet',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMembresRoute = AdminMembresRouteImport.update({
-  id: '/membres',
-  path: '/membres',
-  getParentRoute: () => AdminRoute,
 } as any)
 const AdminCotisationsRoute = AdminCotisationsRouteImport.update({
-  id: '/cotisations',
-  path: '/cotisations',
-  getParentRoute: () => AdminRoute,
+  id: '/admin/cotisations',
+  path: '/admin/cotisations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAssistancesRoute = AdminAssistancesRouteImport.update({
+  id: '/admin/assistances',
+  path: '/admin/assistances',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminNsiaIndexRoute = AdminNsiaIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminNsiaRoute,
+} as any)
+const AdminMembresIndexRoute = AdminMembresIndexRouteImport.update({
+  id: '/admin/membres/',
+  path: '/admin/membres/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminNsiaNouveauRoute = AdminNsiaNouveauRouteImport.update({
+  id: '/nouveau',
+  path: '/nouveau',
+  getParentRoute: () => AdminNsiaRoute,
+} as any)
+const AdminMembresNouveauRoute = AdminMembresNouveauRouteImport.update({
+  id: '/admin/membres/nouveau',
+  path: '/admin/membres/nouveau',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/actualites': typeof ActualitesRoute
-  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
+  '/digitorg': typeof DigitorgRoute
   '/faq': typeof FaqRoute
-  '/forum': typeof ForumRoute
-  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
-  '/opportunites': typeof OpportunitesRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
-  '/admin/membres': typeof AdminMembresRoute
-  '/admin/miprojet': typeof AdminMiprojetRoute
-  '/admin/notifications': typeof AdminNotificationsRoute
-  '/admin/prestations': typeof AdminPrestationsRoute
-  '/membre/carte': typeof MembreCarteRoute
-  '/membre/cotisations': typeof MembreCotisationsRoute
-  '/membre/documents': typeof MembreDocumentsRoute
-  '/membre/fiche': typeof MembreFicheRoute
-  '/membre/profil': typeof MembreProfilRoute
-  '/verifier/$matricule': typeof VerifierMatriculeRoute
+  '/admin/diagnostics': typeof AdminDiagnosticsRoute
+  '/admin/nsia': typeof AdminNsiaRouteWithChildren
+  '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin/': typeof AdminIndexRoute
-  '/membre/': typeof MembreIndexRoute
+  '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
+  '/admin/nsia/nouveau': typeof AdminNsiaNouveauRoute
+  '/admin/membres/': typeof AdminMembresIndexRoute
+  '/admin/nsia/': typeof AdminNsiaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/actualites': typeof ActualitesRoute
   '/contact': typeof ContactRoute
+  '/digitorg': typeof DigitorgRoute
   '/faq': typeof FaqRoute
-  '/forum': typeof ForumRoute
-  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
-  '/opportunites': typeof OpportunitesRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
-  '/admin/membres': typeof AdminMembresRoute
-  '/admin/miprojet': typeof AdminMiprojetRoute
-  '/admin/notifications': typeof AdminNotificationsRoute
-  '/admin/prestations': typeof AdminPrestationsRoute
-  '/membre/carte': typeof MembreCarteRoute
-  '/membre/cotisations': typeof MembreCotisationsRoute
-  '/membre/documents': typeof MembreDocumentsRoute
-  '/membre/fiche': typeof MembreFicheRoute
-  '/membre/profil': typeof MembreProfilRoute
-  '/verifier/$matricule': typeof VerifierMatriculeRoute
+  '/admin/diagnostics': typeof AdminDiagnosticsRoute
+  '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin': typeof AdminIndexRoute
-  '/membre': typeof MembreIndexRoute
+  '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
+  '/admin/nsia/nouveau': typeof AdminNsiaNouveauRoute
+  '/admin/membres': typeof AdminMembresIndexRoute
+  '/admin/nsia': typeof AdminNsiaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/actualites': typeof ActualitesRoute
-  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
+  '/digitorg': typeof DigitorgRoute
   '/faq': typeof FaqRoute
-  '/forum': typeof ForumRoute
-  '/inscription': typeof InscriptionRoute
   '/login': typeof LoginRoute
-  '/opportunites': typeof OpportunitesRoute
-  '/reset-password': typeof ResetPasswordRoute
+  '/nsia': typeof NsiaRoute
   '/scanner': typeof ScannerRoute
-  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin/assistances': typeof AdminAssistancesRoute
   '/admin/cotisations': typeof AdminCotisationsRoute
-  '/admin/membres': typeof AdminMembresRoute
-  '/admin/miprojet': typeof AdminMiprojetRoute
-  '/admin/notifications': typeof AdminNotificationsRoute
-  '/admin/prestations': typeof AdminPrestationsRoute
-  '/membre/carte': typeof MembreCarteRoute
-  '/membre/cotisations': typeof MembreCotisationsRoute
-  '/membre/documents': typeof MembreDocumentsRoute
-  '/membre/fiche': typeof MembreFicheRoute
-  '/membre/profil': typeof MembreProfilRoute
-  '/verifier/$matricule': typeof VerifierMatriculeRoute
+  '/admin/diagnostics': typeof AdminDiagnosticsRoute
+  '/admin/nsia': typeof AdminNsiaRouteWithChildren
+  '/verifier/$telephone': typeof VerifierTelephoneRoute
   '/admin/': typeof AdminIndexRoute
-  '/membre/': typeof MembreIndexRoute
+  '/admin/membres/nouveau': typeof AdminMembresNouveauRoute
+  '/admin/nsia/nouveau': typeof AdminNsiaNouveauRoute
+  '/admin/membres/': typeof AdminMembresIndexRoute
+  '/admin/nsia/': typeof AdminNsiaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/actualites'
-    | '/admin'
     | '/contact'
+    | '/digitorg'
     | '/faq'
-    | '/forum'
-    | '/inscription'
     | '/login'
-    | '/opportunites'
-    | '/reset-password'
+    | '/nsia'
     | '/scanner'
-    | '/sitemap.xml'
+    | '/admin/assistances'
     | '/admin/cotisations'
-    | '/admin/membres'
-    | '/admin/miprojet'
-    | '/admin/notifications'
-    | '/admin/prestations'
-    | '/membre/carte'
-    | '/membre/cotisations'
-    | '/membre/documents'
-    | '/membre/fiche'
-    | '/membre/profil'
-    | '/verifier/$matricule'
+    | '/admin/diagnostics'
+    | '/admin/nsia'
+    | '/verifier/$telephone'
     | '/admin/'
-    | '/membre/'
+    | '/admin/membres/nouveau'
+    | '/admin/nsia/nouveau'
+    | '/admin/membres/'
+    | '/admin/nsia/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/actualites'
     | '/contact'
+    | '/digitorg'
     | '/faq'
-    | '/forum'
-    | '/inscription'
     | '/login'
-    | '/opportunites'
-    | '/reset-password'
+    | '/nsia'
     | '/scanner'
-    | '/sitemap.xml'
+    | '/admin/assistances'
     | '/admin/cotisations'
-    | '/admin/membres'
-    | '/admin/miprojet'
-    | '/admin/notifications'
-    | '/admin/prestations'
-    | '/membre/carte'
-    | '/membre/cotisations'
-    | '/membre/documents'
-    | '/membre/fiche'
-    | '/membre/profil'
-    | '/verifier/$matricule'
+    | '/admin/diagnostics'
+    | '/verifier/$telephone'
     | '/admin'
-    | '/membre'
+    | '/admin/membres/nouveau'
+    | '/admin/nsia/nouveau'
+    | '/admin/membres'
+    | '/admin/nsia'
   id:
     | '__root__'
     | '/'
-    | '/actualites'
-    | '/admin'
     | '/contact'
+    | '/digitorg'
     | '/faq'
-    | '/forum'
-    | '/inscription'
     | '/login'
-    | '/opportunites'
-    | '/reset-password'
+    | '/nsia'
     | '/scanner'
-    | '/sitemap.xml'
+    | '/admin/assistances'
     | '/admin/cotisations'
-    | '/admin/membres'
-    | '/admin/miprojet'
-    | '/admin/notifications'
-    | '/admin/prestations'
-    | '/membre/carte'
-    | '/membre/cotisations'
-    | '/membre/documents'
-    | '/membre/fiche'
-    | '/membre/profil'
-    | '/verifier/$matricule'
+    | '/admin/diagnostics'
+    | '/admin/nsia'
+    | '/verifier/$telephone'
     | '/admin/'
-    | '/membre/'
+    | '/admin/membres/nouveau'
+    | '/admin/nsia/nouveau'
+    | '/admin/membres/'
+    | '/admin/nsia/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ActualitesRoute: typeof ActualitesRoute
-  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
+  DigitorgRoute: typeof DigitorgRoute
   FaqRoute: typeof FaqRoute
-  ForumRoute: typeof ForumRoute
-  InscriptionRoute: typeof InscriptionRoute
   LoginRoute: typeof LoginRoute
-  OpportunitesRoute: typeof OpportunitesRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
+  NsiaRoute: typeof NsiaRoute
   ScannerRoute: typeof ScannerRoute
-  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  MembreCarteRoute: typeof MembreCarteRoute
-  MembreCotisationsRoute: typeof MembreCotisationsRoute
-  MembreDocumentsRoute: typeof MembreDocumentsRoute
-  MembreFicheRoute: typeof MembreFicheRoute
-  MembreProfilRoute: typeof MembreProfilRoute
-  VerifierMatriculeRoute: typeof VerifierMatriculeRoute
-  MembreIndexRoute: typeof MembreIndexRoute
+  AdminAssistancesRoute: typeof AdminAssistancesRoute
+  AdminCotisationsRoute: typeof AdminCotisationsRoute
+  AdminDiagnosticsRoute: typeof AdminDiagnosticsRoute
+  AdminNsiaRoute: typeof AdminNsiaRouteWithChildren
+  VerifierTelephoneRoute: typeof VerifierTelephoneRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminMembresNouveauRoute: typeof AdminMembresNouveauRoute
+  AdminMembresIndexRoute: typeof AdminMembresIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/scanner': {
       id: '/scanner'
       path: '/scanner'
@@ -363,18 +256,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/opportunites': {
-      id: '/opportunites'
-      path: '/opportunites'
-      fullPath: '/opportunites'
-      preLoaderRoute: typeof OpportunitesRouteImport
+    '/nsia': {
+      id: '/nsia'
+      path: '/nsia'
+      fullPath: '/nsia'
+      preLoaderRoute: typeof NsiaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -384,25 +270,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/inscription': {
-      id: '/inscription'
-      path: '/inscription'
-      fullPath: '/inscription'
-      preLoaderRoute: typeof InscriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forum': {
-      id: '/forum'
-      path: '/forum'
-      fullPath: '/forum'
-      preLoaderRoute: typeof ForumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/faq': {
       id: '/faq'
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digitorg': {
+      id: '/digitorg'
+      path: '/digitorg'
+      fullPath: '/digitorg'
+      preLoaderRoute: typeof DigitorgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -412,20 +291,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/actualites': {
-      id: '/actualites'
-      path: '/actualites'
-      fullPath: '/actualites'
-      preLoaderRoute: typeof ActualitesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -433,140 +298,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/membre/': {
-      id: '/membre/'
-      path: '/membre'
-      fullPath: '/membre/'
-      preLoaderRoute: typeof MembreIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/': {
       id: '/admin/'
-      path: '/'
+      path: '/admin'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/verifier/$matricule': {
-      id: '/verifier/$matricule'
-      path: '/verifier/$matricule'
-      fullPath: '/verifier/$matricule'
-      preLoaderRoute: typeof VerifierMatriculeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/membre/profil': {
-      id: '/membre/profil'
-      path: '/membre/profil'
-      fullPath: '/membre/profil'
-      preLoaderRoute: typeof MembreProfilRouteImport
+    '/verifier/$telephone': {
+      id: '/verifier/$telephone'
+      path: '/verifier/$telephone'
+      fullPath: '/verifier/$telephone'
+      preLoaderRoute: typeof VerifierTelephoneRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/membre/fiche': {
-      id: '/membre/fiche'
-      path: '/membre/fiche'
-      fullPath: '/membre/fiche'
-      preLoaderRoute: typeof MembreFicheRouteImport
+    '/admin/nsia': {
+      id: '/admin/nsia'
+      path: '/admin/nsia'
+      fullPath: '/admin/nsia'
+      preLoaderRoute: typeof AdminNsiaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/membre/documents': {
-      id: '/membre/documents'
-      path: '/membre/documents'
-      fullPath: '/membre/documents'
-      preLoaderRoute: typeof MembreDocumentsRouteImport
+    '/admin/diagnostics': {
+      id: '/admin/diagnostics'
+      path: '/admin/diagnostics'
+      fullPath: '/admin/diagnostics'
+      preLoaderRoute: typeof AdminDiagnosticsRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/membre/cotisations': {
-      id: '/membre/cotisations'
-      path: '/membre/cotisations'
-      fullPath: '/membre/cotisations'
-      preLoaderRoute: typeof MembreCotisationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/membre/carte': {
-      id: '/membre/carte'
-      path: '/membre/carte'
-      fullPath: '/membre/carte'
-      preLoaderRoute: typeof MembreCarteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/prestations': {
-      id: '/admin/prestations'
-      path: '/prestations'
-      fullPath: '/admin/prestations'
-      preLoaderRoute: typeof AdminPrestationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/notifications': {
-      id: '/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AdminNotificationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/miprojet': {
-      id: '/admin/miprojet'
-      path: '/miprojet'
-      fullPath: '/admin/miprojet'
-      preLoaderRoute: typeof AdminMiprojetRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/membres': {
-      id: '/admin/membres'
-      path: '/membres'
-      fullPath: '/admin/membres'
-      preLoaderRoute: typeof AdminMembresRouteImport
-      parentRoute: typeof AdminRoute
     }
     '/admin/cotisations': {
       id: '/admin/cotisations'
-      path: '/cotisations'
+      path: '/admin/cotisations'
       fullPath: '/admin/cotisations'
       preLoaderRoute: typeof AdminCotisationsRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/assistances': {
+      id: '/admin/assistances'
+      path: '/admin/assistances'
+      fullPath: '/admin/assistances'
+      preLoaderRoute: typeof AdminAssistancesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/nsia/': {
+      id: '/admin/nsia/'
+      path: '/'
+      fullPath: '/admin/nsia/'
+      preLoaderRoute: typeof AdminNsiaIndexRouteImport
+      parentRoute: typeof AdminNsiaRoute
+    }
+    '/admin/membres/': {
+      id: '/admin/membres/'
+      path: '/admin/membres'
+      fullPath: '/admin/membres/'
+      preLoaderRoute: typeof AdminMembresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/nsia/nouveau': {
+      id: '/admin/nsia/nouveau'
+      path: '/nouveau'
+      fullPath: '/admin/nsia/nouveau'
+      preLoaderRoute: typeof AdminNsiaNouveauRouteImport
+      parentRoute: typeof AdminNsiaRoute
+    }
+    '/admin/membres/nouveau': {
+      id: '/admin/membres/nouveau'
+      path: '/admin/membres/nouveau'
+      fullPath: '/admin/membres/nouveau'
+      preLoaderRoute: typeof AdminMembresNouveauRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminCotisationsRoute: typeof AdminCotisationsRoute
-  AdminMembresRoute: typeof AdminMembresRoute
-  AdminMiprojetRoute: typeof AdminMiprojetRoute
-  AdminNotificationsRoute: typeof AdminNotificationsRoute
-  AdminPrestationsRoute: typeof AdminPrestationsRoute
-  AdminIndexRoute: typeof AdminIndexRoute
+interface AdminNsiaRouteChildren {
+  AdminNsiaNouveauRoute: typeof AdminNsiaNouveauRoute
+  AdminNsiaIndexRoute: typeof AdminNsiaIndexRoute
 }
 
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminCotisationsRoute: AdminCotisationsRoute,
-  AdminMembresRoute: AdminMembresRoute,
-  AdminMiprojetRoute: AdminMiprojetRoute,
-  AdminNotificationsRoute: AdminNotificationsRoute,
-  AdminPrestationsRoute: AdminPrestationsRoute,
-  AdminIndexRoute: AdminIndexRoute,
+const AdminNsiaRouteChildren: AdminNsiaRouteChildren = {
+  AdminNsiaNouveauRoute: AdminNsiaNouveauRoute,
+  AdminNsiaIndexRoute: AdminNsiaIndexRoute,
 }
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+const AdminNsiaRouteWithChildren = AdminNsiaRoute._addFileChildren(
+  AdminNsiaRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActualitesRoute: ActualitesRoute,
-  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
+  DigitorgRoute: DigitorgRoute,
   FaqRoute: FaqRoute,
-  ForumRoute: ForumRoute,
-  InscriptionRoute: InscriptionRoute,
   LoginRoute: LoginRoute,
-  OpportunitesRoute: OpportunitesRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
+  NsiaRoute: NsiaRoute,
   ScannerRoute: ScannerRoute,
-  SitemapDotxmlRoute: SitemapDotxmlRoute,
-  MembreCarteRoute: MembreCarteRoute,
-  MembreCotisationsRoute: MembreCotisationsRoute,
-  MembreDocumentsRoute: MembreDocumentsRoute,
-  MembreFicheRoute: MembreFicheRoute,
-  MembreProfilRoute: MembreProfilRoute,
-  VerifierMatriculeRoute: VerifierMatriculeRoute,
-  MembreIndexRoute: MembreIndexRoute,
+  AdminAssistancesRoute: AdminAssistancesRoute,
+  AdminCotisationsRoute: AdminCotisationsRoute,
+  AdminDiagnosticsRoute: AdminDiagnosticsRoute,
+  AdminNsiaRoute: AdminNsiaRouteWithChildren,
+  VerifierTelephoneRoute: VerifierTelephoneRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminMembresNouveauRoute: AdminMembresNouveauRoute,
+  AdminMembresIndexRoute: AdminMembresIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

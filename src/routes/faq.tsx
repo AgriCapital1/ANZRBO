@@ -8,11 +8,11 @@ export const Route = createFileRoute("/faq")({
 });
 
 const faq = [
-  { q: "Qui peut s’inscrire à la MUGEC-CI ?", a: "Tout agent en activité ou à la retraite d'une collectivité territoriale ivoirienne (mairie, conseil régional, etc.)." },
-  { q: "Combien coûte l’inscription ?", a: "Les frais d’inscription sont de 5 000 FCFA, payables une seule fois par mobile money." },
-  { q: "Comment payer mes cotisations ?", a: "Via Orange Money, MTN MoMo, Wave ou Moov, directement depuis votre espace membre." },
-  { q: "Comment obtenir ma carte de membre ?", a: "Après validation de votre dossier, votre carte est générée automatiquement et téléchargeable au format PDF." },
-  { q: "Mes données sont-elles protégées ?", a: "Oui. La plateforme respecte les bonnes pratiques de sécurité (HTTPS, RGPD-like, accès cloisonné par rôle)." },
+  { q: "Qui peut adhérer à l'ANZRBO ?", a: "Les N'Zipris résidents à Bonon et les membres acceptés selon les règles internes de l'association." },
+  { q: "Quel est le principe de solidarité ?", a: "Chaque membre participe aux cotisations prévues afin de soutenir les familles lors des décès déclarés." },
+  { q: "Comment vérifier un membre ?", a: "La vérification publique se fait par numéro de téléphone ou par QR code." },
+  { q: "Comment obtenir ma carte de membre ?", a: "Après validation de votre dossier, votre carte est générée et téléchargeable depuis votre espace membre." },
+  { q: "Mes données sont-elles protégées ?", a: "Oui. Les accès sont cloisonnés par rôle et les informations sensibles ne sont pas exposées publiquement." },
 ];
 
 function Page() {

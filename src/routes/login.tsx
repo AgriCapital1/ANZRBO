@@ -1,65 +1,41 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { useServerFn } from "@tanstack/react-start";
-import { loginWithIdentifier } from "@/lib/login.functions";
-import logo from "@/assets/mugec-logo.png";
+import logo from "@/assets/anzrbo-logo.png";
 
 export const Route = createFileRoute("/login")({
   component: Page,
+  head: () => ({
+    meta: [
+      { title: "Accès administrateur — ANZRBO" },
+      { name: "description", content: "Connexion réservée aux administrateurs ANZRBO, DigitOrg et au partenaire NSIA." },
+    ],
+  }),
 });
 
 function Page() {
+  const { signIn } = useAuth();
+  const nav = useNavigate();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const doLogin = useServerFn(loginWithIdentifier);
-
-  async function onSubmit(e: React.FormEvent) {
+  function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
-    if (!isSupabaseConfigured) {
-      setErrorMsg("Lovable Cloud / Supabase n'est pas encore connecté.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await doLogin({ data: { identifier, password } });
-      if (!res?.ok) {
-        setErrorMsg("Identifiant ou mot de passe incorrect, veuillez réessayer.");
-        return;
-      }
-      const { error: setErr } = await supabase.auth.setSession({
-        access_token: res.access_token,
-        refresh_token: res.refresh_token,
-      });
-      if (setErr) {
-        console.error("login setSession failed", setErr);
-        setErrorMsg("Identifiant ou mot de passe incorrect, veuillez réessayer.");
-        return;
-      }
-      // dashboard_path is computed server-side inside loginWithIdentifier
-      // from this user's roles — no race condition possible.
-      const target = res.dashboard_path || "/membre";
-      toast.success("Bienvenue !");
-      window.location.assign(target);
-    } catch (err) {
-      console.error("login failed", err);
-      setErrorMsg("Identifiant ou mot de passe incorrect, veuillez réessayer.");
-    } finally {
-      setLoading(false);
-    }
+    const u = signIn(identifier, password);
+    if (!u) { setErrorMsg("Identifiant ou mot de passe incorrect."); return; }
+    toast.success(`Bienvenue, ${u.prenoms} ${u.nom}.`);
+    nav({ to: u.home });
   }
 
   return (
@@ -68,48 +44,40 @@ function Page() {
       <section className="container mx-auto max-w-md px-4 py-16">
         <Card>
           <CardContent className="p-8">
-            <img src={logo} alt="MUGEC-CI" className="mx-auto h-16" />
-            <h1 className="mt-4 text-center text-2xl font-bold">Espace membre</h1>
-            <p className="mt-1 text-center text-sm text-muted-foreground">Connectez-vous à votre compte MUGEC-CI</p>
+            <img src={logo} alt="ANZRBO" className="mx-auto h-16" />
+            <div className="mt-4 flex items-center justify-center gap-2 text-primary">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Espace réservé</span>
+            </div>
+            <h1 className="mt-2 text-center text-2xl font-bold">Connexion</h1>
+            <p className="mt-1 text-center text-sm text-muted-foreground">
+              Espace administrateurs ANZRBO, DigitOrg et partenaire NSIA.
+            </p>
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               {errorMsg && (
-                <div
-                  role="alert"
-                  aria-live="assertive"
-                  className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive"
-                >
+                <div role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
                   {errorMsg}
                 </div>
               )}
               <div>
-                <Label htmlFor="identifier">Identifiant (numéro de téléphone ou identifiant admin)</Label>
+                <Label htmlFor="identifier">Identifiant</Label>
                 <Input
-                  id="identifier"
-                  type="text"
-                  required
-                  value={identifier}
+                  id="identifier" type="text" required value={identifier}
                   onChange={(e) => { setIdentifier(e.target.value); if (errorMsg) setErrorMsg(null); }}
-                  placeholder="Ex: 0758894363, mugecadmin ou admininoce"
-                  aria-invalid={errorMsg ? true : undefined}
-                  className={errorMsg ? "border-destructive focus-visible:ring-destructive" : undefined}
+                  placeholder="Téléphone ou identifiant" autoComplete="username"
                 />
               </div>
               <div>
                 <Label htmlFor="password">Mot de passe</Label>
                 <div className="relative">
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
+                    id="password" type={showPassword ? "text" : "password"} required value={password}
                     onChange={(e) => { setPassword(e.target.value); if (errorMsg) setErrorMsg(null); }}
-                    className={`pr-10 ${errorMsg ? "border-destructive focus-visible:ring-destructive" : ""}`}
-                    aria-invalid={errorMsg ? true : undefined}
+                    className="pr-10" autoComplete="current-password"
                   />
                   <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                    type="button" onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Masquer" : "Afficher"}
                     className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground"
                     tabIndex={-1}
                   >
@@ -117,13 +85,17 @@ function Page() {
                   </button>
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Connexion…" : "Se connecter"}
-              </Button>
+              <Button type="submit" className="w-full">Se connecter</Button>
             </form>
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Pas encore membre ? <Link to="/inscription" className="text-primary underline">S'inscrire</Link>
-            </p>
+
+            <div className="mt-6 rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+              <p className="font-semibold text-foreground">Comptes de démonstration</p>
+              <ul className="mt-1 space-y-0.5">
+                <li>Admin ANZRBO : <span className="font-mono">0759566087</span> / 12345678 → /admin</li>
+                <li>DigitOrg : <span className="font-mono">admin</span> / 12345678 → /digitorg</li>
+                <li>Partenaire NSIA : <span className="font-mono">nsia</span> / 12345678 → /nsia</li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
       </section>
@@ -131,4 +103,3 @@ function Page() {
     </div>
   );
 }
-

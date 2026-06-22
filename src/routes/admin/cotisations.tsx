@@ -1,236 +1,98 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo } from "react";
 import { DashboardHeader, ADMIN_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
-import { useServerFn } from "@tanstack/react-start";
-import { dispatchNotification } from "@/lib/notifications.functions";
-import { Wallet, Search, Send, MessageSquare, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { COTISATIONS, DECLARATIONS, MEMBRES, COTISATION_PAR_DECES, membre } from "@/lib/data";
+import { Wallet, AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/admin/cotisations")({ component: CotisationsPage });
+export const Route = createFileRoute("/admin/cotisations")({
+  component: Page,
+  head: () => ({ meta: [{ title: "Cotisations — Admin ANZRBO" }] }),
+});
 
-type Row = {
-  id: string; member_id: string; periode: string; montant: number;
-  statut: string; methode: string | null; reference: string | null;
-  paye_le: string | null; created_at: string;
-  members?: { nom: string; prenoms: string; telephone: string | null; matricule: string | null; user_id: string } | null;
-};
+function Page() {
+  const { user, loading } = useAuth();
+  const nav = useNavigate();
+  useEffect(() => { if (!loading && (!user || user.role !== "admin_anzrbo")) nav({ to: "/login" }); }, [user, loading, nav]);
 
-const PAGE = 50;
+  const parDecl = useMemo(() => DECLARATIONS.map((d) => {
+    const cs = COTISATIONS.filter((c) => c.declarationId === d.id);
+    return {
+      d, total: cs.length, payees: cs.filter((c) => c.statut === "payee").length,
+      retard: cs.filter((c) => c.statut === "en_retard").length,
+      collecte: cs.filter((c) => c.statut === "payee").reduce((s, c) => s + c.montant, 0),
+    };
+  }), []);
 
-function fmt(n: number) { return `${(n ?? 0).toLocaleString("fr-FR")} F`; }
-
-function CotisationsPage() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [page, setPage] = useState(0);
-  const [statut, setStatut] = useState<"all"|"paye"|"en_attente"|"en_retard">("all");
-  const [q, setQ] = useState("");
-  const [loading, setLoading] = useState(true);
-  const dispatch = useServerFn(dispatchNotification);
-
-  async function load() {
-    setLoading(true);
-    let qb = supabase
-      .from("cotisations")
-      .select("id, member_id, periode, montant, statut, methode, reference, paye_le, created_at, members:member_id (nom, prenoms, telephone, matricule, user_id)")
-      .order("created_at", { ascending: false })
-      .range(page * PAGE, page * PAGE + PAGE - 1);
-    if (statut !== "all" && statut !== "en_retard") qb = qb.eq("statut", statut);
-    const { data, error } = await qb;
-    if (error) {
-      console.error("[admin/cotisations] load failed", error);
-      toast.error("Impossible de charger les cotisations.");
-    } else setRows((data as any) || []);
-    setLoading(false);
-  }
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [page, statut]);
-
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    let r = rows;
-    if (statut === "en_retard") {
-      const lim = new Date(); lim.setDate(lim.getDate() - 30);
-      r = r.filter((x) => x.statut !== "paye" && new Date(x.created_at) < lim);
-    }
-    if (!s) return r;
-    return r.filter((x) =>
-      (x.reference ?? "").toLowerCase().includes(s) ||
-      (x.periode ?? "").toLowerCase().includes(s) ||
-      (x.members?.nom ?? "").toLowerCase().includes(s) ||
-      (x.members?.matricule ?? "").toLowerCase().includes(s),
-    );
-  }, [rows, q, statut]);
-
-  async function markPaid(id: string) {
-    const { error } = await supabase.from("cotisations").update({ statut: "paye", paye_le: new Date().toISOString() }).eq("id", id);
-    if (error) {
-      console.error("[admin/cotisations] markPaid failed", error);
-      toast.error("Impossible de marquer comme payé.");
-    } else { toast.success("Marqué payé"); load(); }
-  }
-
-  async function relancer(r: Row, channels: ("sms"|"whatsapp"|"email")[]) {
-    if (!r.members) { toast.error("Membre introuvable"); return; }
-    try {
-      await dispatch({
-        data: {
-          event: "cotisation_relance",
-          memberId: r.member_id,
-          userId: r.members.user_id,
-          to: { phone: r.members.telephone ?? undefined, whatsapp: r.members.telephone ?? undefined },
-          channels,
-          context: {
-            nom: r.members.nom,
-            prenoms: r.members.prenoms,
-            periode: r.periode,
-            montant: r.montant,
-            matricule: r.members.matricule ?? "",
-          },
-        },
-      });
-      toast.success(`Relance envoyée (${channels.join(", ")})`);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Échec de la relance");
-    }
-  }
-
-  async function relanceMass(channels: ("sms"|"whatsapp"|"email")[]) {
-    const cibles = filtered.filter((r) => r.statut !== "paye");
-    if (cibles.length === 0) { toast.info("Aucune cotisation à relancer"); return; }
-    toast.message(`Envoi de ${cibles.length} relance(s)…`);
-    let ok = 0;
-    for (const r of cibles) {
-      try { await relancer(r, channels); ok++; } catch { /* ignore */ }
-    }
-    toast.success(`${ok}/${cibles.length} relance(s) traitée(s)`);
-  }
-
-  const stats = useMemo(() => {
-    const paye = filtered.filter((r) => r.statut === "paye").reduce((a, b) => a + (b.montant || 0), 0);
-    const attente = filtered.filter((r) => r.statut !== "paye").reduce((a, b) => a + (b.montant || 0), 0);
-    const retard = filtered.filter((r) => {
-      const lim = new Date(); lim.setDate(lim.getDate() - 30);
-      return r.statut !== "paye" && new Date(r.created_at) < lim;
-    }).length;
-    return { paye, attente, retard, total: filtered.length };
-  }, [filtered]);
+  const enRetard = useMemo(() => COTISATIONS.filter((c) => c.statut !== "payee"), []);
+  if (loading || !user) return <div className="flex min-h-screen items-center justify-center">Chargement…</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/40">
-      <DashboardHeader title="Cotisations MUGEC-CI" nav={ADMIN_NAV} />
+    <div className="min-h-screen bg-muted/30">
+      <DashboardHeader title="Cotisations — ANZRBO" nav={ADMIN_NAV} />
       <main className="container mx-auto max-w-7xl space-y-6 px-4 py-8">
-        <div className="grid gap-4 md:grid-cols-4">
-          <MiniStat icon={<CheckCircle2 className="h-4 w-4"/>} label="Payées (vue)" value={fmt(stats.paye)} accent="from-emerald-500 to-green-600"/>
-          <MiniStat icon={<Wallet className="h-4 w-4"/>} label="En attente" value={fmt(stats.attente)} accent="from-amber-500 to-orange-600"/>
-          <MiniStat icon={<AlertTriangle className="h-4 w-4"/>} label="En retard (>30j)" value={String(stats.retard)} accent="from-rose-500 to-red-600"/>
-          <MiniStat icon={<Send className="h-4 w-4"/>} label="Lignes affichées" value={String(stats.total)} accent="from-blue-500 to-indigo-600"/>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Stat icon={Wallet} label="Cotisation par décès" value={`${COTISATION_PAR_DECES.toLocaleString("fr-FR")} F`} />
+          <Stat icon={Wallet} label="Cotisations payées" value={COTISATIONS.filter((c) => c.statut === "payee").length} />
+          <Stat icon={AlertTriangle} label="Cotisations en retard" value={enRetard.length} warn />
         </div>
 
-        <Card className="border-0 shadow-md">
-          <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2"><Wallet className="h-5 w-5 text-primary"/> Suivi des cotisations</CardTitle>
-              <CardDescription>Marquage des paiements, relances SMS / WhatsApp / Email</CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"/>
-                <Input placeholder="Référence, période, nom…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 w-72"/>
-              </div>
-              <Select value={statut} onValueChange={(v: any) => { setStatut(v); setPage(0); }}>
-                <SelectTrigger className="w-44"><SelectValue/></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous statuts</SelectItem>
-                  <SelectItem value="paye">Payées</SelectItem>
-                  <SelectItem value="en_attente">En attente</SelectItem>
-                  <SelectItem value="en_retard">En retard (&gt;30j)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Suivi des cotisations par décès déclaré</CardTitle>
+            <CardDescription>Règle métier : 1 cotisation de 1 200 FCFA par membre actif et par décès déclaré.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="table">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <TabsList>
-                  <TabsTrigger value="table">Tableau</TabsTrigger>
-                  <TabsTrigger value="mass">Relance de masse</TabsTrigger>
-                </TabsList>
-              </div>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader><TableRow>
+                <TableHead>Décès</TableHead><TableHead>Date</TableHead>
+                <TableHead>Type</TableHead><TableHead>Cotisations dues</TableHead>
+                <TableHead>Payées</TableHead><TableHead>En retard</TableHead>
+                <TableHead>Collecté</TableHead>
+              </TableRow></TableHeader>
+              <TableBody>
+                {parDecl.map(({ d, total, payees, retard, collecte }) => (
+                  <TableRow key={d.id}>
+                    <TableCell>{d.nomDefunt}</TableCell>
+                    <TableCell>{new Date(d.dateDeces).toLocaleDateString("fr-FR")}</TableCell>
+                    <TableCell>{d.defuntType === "principal" ? "Membre principal" : "Ayant droit"}</TableCell>
+                    <TableCell>{total}</TableCell>
+                    <TableCell><Badge className="bg-emerald-100 text-emerald-700">{payees}</Badge></TableCell>
+                    <TableCell>{retard > 0 ? <Badge className="bg-red-100 text-red-700">{retard}</Badge> : <span className="text-muted-foreground">0</span>}</TableCell>
+                    <TableCell className="font-semibold">{collecte.toLocaleString("fr-FR")} F</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-              <TabsContent value="table" className="mt-4 overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Membre</TableHead>
-                      <TableHead>Période</TableHead>
-                      <TableHead className="text-right">Montant</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+        <Card>
+          <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-red-600" /> Cotisations en retard</CardTitle></CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader><TableRow>
+                <TableHead>Membre</TableHead><TableHead>Téléphone</TableHead>
+                <TableHead>Décès concerné</TableHead><TableHead>Montant dû</TableHead>
+              </TableRow></TableHeader>
+              <TableBody>
+                {enRetard.map((c) => {
+                  const m = membre(c.membreId)!;
+                  const d = DECLARATIONS.find((x) => x.id === c.declarationId)!;
+                  return (
+                    <TableRow key={c.id}>
+                      <TableCell>{m.prenoms} {m.nom}</TableCell>
+                      <TableCell className="text-muted-foreground">{m.telephone}</TableCell>
+                      <TableCell>{d.nomDefunt} ({new Date(d.dateDeces).toLocaleDateString("fr-FR")})</TableCell>
+                      <TableCell className="font-semibold text-red-600">{c.montant.toLocaleString("fr-FR")} F</TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">Chargement…</TableCell></TableRow>
-                    ) : filtered.length === 0 ? (
-                      <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">Aucune cotisation</TableCell></TableRow>
-                    ) : filtered.map((r) => (
-                      <TableRow key={r.id}>
-                        <TableCell className="font-medium">
-                          {r.members ? `${r.members.nom} ${r.members.prenoms}` : "—"}
-                          {r.members?.matricule && <div className="font-mono text-xs text-muted-foreground">{r.members.matricule}</div>}
-                        </TableCell>
-                        <TableCell>{r.periode}</TableCell>
-                        <TableCell className="text-right font-mono">{fmt(r.montant)}</TableCell>
-                        <TableCell>
-                          {r.statut === "paye"
-                            ? <Badge className="bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/20">Payée</Badge>
-                            : <Badge variant="secondary">{r.statut.replace("_"," ")}</Badge>}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("fr-FR")}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            {r.statut !== "paye" && (
-                              <>
-                                <Button size="sm" variant="outline" onClick={() => relancer(r, ["sms"])}><Send className="h-3.5 w-3.5 mr-1"/>SMS</Button>
-                                <Button size="sm" variant="outline" onClick={() => relancer(r, ["whatsapp"])}><MessageSquare className="h-3.5 w-3.5 mr-1"/>WA</Button>
-                                <Button size="sm" onClick={() => markPaid(r.id)}>Marquer payée</Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <div className="mt-4 flex items-center justify-between">
-                  <Button variant="outline" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}>← Précédent</Button>
-                  <span className="text-sm text-muted-foreground">Page {page + 1}</span>
-                  <Button variant="outline" disabled={rows.length < PAGE} onClick={() => setPage((p) => p + 1)}>Suivant →</Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="mass" className="mt-4">
-                <Card className="border-dashed">
-                  <CardHeader>
-                    <CardTitle className="text-base">Relancer les impayés affichés</CardTitle>
-                    <CardDescription>Envoie une relance à chaque ligne non payée du filtre actuel.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex flex-wrap gap-2">
-                    <Button onClick={() => relanceMass(["sms"])}><Send className="mr-2 h-4 w-4"/>Relance SMS</Button>
-                    <Button variant="secondary" onClick={() => relanceMass(["whatsapp"])}><MessageSquare className="mr-2 h-4 w-4"/>Relance WhatsApp</Button>
-                    <Button variant="outline" onClick={() => relanceMass(["sms","whatsapp","email"])}>Tous les canaux</Button>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </main>
@@ -238,16 +100,11 @@ function CotisationsPage() {
   );
 }
 
-function MiniStat({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent: string }) {
+function Stat({ icon: I, label, value, warn }: { icon: any; label: string; value: any; warn?: boolean }) {
   return (
-    <Card className="border-0 shadow-md overflow-hidden">
-      <CardContent className="p-4 flex items-center gap-3">
-        <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${accent} text-white flex items-center justify-center shadow`}>{icon}</div>
-        <div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-          <div className="text-lg font-bold">{value}</div>
-        </div>
-      </CardContent>
-    </Card>
+    <Card><CardContent className="flex items-center justify-between p-5">
+      <div><div className="text-xs uppercase text-muted-foreground">{label}</div><div className={`text-2xl font-bold ${warn ? "text-red-600" : ""}`}>{value}</div></div>
+      <I className={`h-8 w-8 ${warn ? "text-red-500" : "text-primary"}`} />
+    </CardContent></Card>
   );
 }

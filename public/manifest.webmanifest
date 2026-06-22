@@ -1,7 +1,7 @@
 {
-  "name": "MUGEC-CI — Mutuelle Générale du Personnel des Collectivités Territoriales",
-  "short_name": "MUGEC-CI",
-  "description": "Mutuelle Générale du Personnel des Collectivités Territoriales de Côte d'Ivoire",
+  "name": "ANZRBO — Association des N'Zipris Résidents à Bonon",
+  "short_name": "ANZRBO",
+  "description": "Plateforme officielle de l'Association des N'Zipris Résidents à Bonon",
   "lang": "fr",
   "start_url": "/",
   "id": "/",
@@ -10,15 +10,12 @@
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#1E5BA8",
-  "categories": ["finance", "social", "government"],
+  "categories": ["finance", "social", "community"],
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
-  "shortcuts": [
-    { "name": "S'inscrire", "url": "/inscription", "description": "Adhésion en ligne" },
-    { "name": "Espace membre", "url": "/membre", "description": "Mon espace personnel" }
-  ]
+  "shortcuts": [{ "name": "Accès administrateur", "url": "/login", "description": "Espace réservé ANZRBO" }]
 }
