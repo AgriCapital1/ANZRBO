@@ -13,6 +13,7 @@ export function SiteFooter() {
         <div>
           <h4 className="mb-3 text-sm font-semibold text-foreground">Plateforme</h4>
           <ul className="space-y-1 text-sm text-muted-foreground">
+            <li><a href="/guide/procedure-deces" className="hover:text-primary">Guide procédure décès</a></li>
             <li><a href="/scanner" className="hover:text-primary">Scanner un QR Code</a></li>
             <li><a href="/contact" className="hover:text-primary">Nous contacter</a></li>
             <li><a href="/login" className="hover:text-primary">Espace administrateur</a></li>
