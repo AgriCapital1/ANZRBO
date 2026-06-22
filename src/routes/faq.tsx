@@ -46,7 +46,7 @@ function Page() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <section className="container mx-auto max-w-3xl px-4 py-16">
-        <h1 className="text-4xl font-bold tracking-tight">Foire aux questions</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Foire aux questions ANZRBO</h1>
         <Accordion type="single" collapsible className="mt-8">
           {faq.map((f, i) => (
             <AccordionItem key={i} value={`i${i}`}>

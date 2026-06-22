@@ -77,7 +77,7 @@ function Page() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <section className="container mx-auto max-w-5xl px-4 py-16">
-        <h1 className="text-4xl font-bold tracking-tight">Contact</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Contactez l'association ANZRBO</h1>
         <p className="mt-3 text-muted-foreground">Joignez l'ANZRBO ou écrivez-nous via le formulaire.</p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
