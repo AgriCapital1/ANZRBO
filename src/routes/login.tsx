@@ -29,10 +29,10 @@ function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
-    const u = signIn(identifier, password);
+    const u = await signIn(identifier, password);
     if (!u) { setErrorMsg("Identifiant ou mot de passe incorrect."); return; }
     toast.success(`Bienvenue, ${u.prenoms} ${u.nom}.`);
     nav({ to: u.home });
