@@ -1,9 +1,9 @@
 import { existsSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const expectedOutput = ".output";
-const expectedPublicOutput = ".output/public";
-const serverEntry = ".output/server/index.mjs";
+const expectedOutput = ".vercel/output";
+const expectedPublicOutput = ".vercel/output/static";
+const serverEntry = ".vercel/output/functions/__server.func/index.mjs";
 
 function fail(message) {
   console.error(`[vercel-output-check] ${message}`);
