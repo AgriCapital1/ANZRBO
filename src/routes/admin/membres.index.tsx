@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import {
   MEMBRES, ayantsDroitDe, cotisationsDuMembre, souscriptionDe,
   declarationsDuMembre, aJour, Membre,

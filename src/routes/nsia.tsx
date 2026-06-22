@@ -4,7 +4,7 @@ import { DashboardHeader, NSIA_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import {
   SOUSCRIPTIONS_NSIA, PAIEMENTS_NSIA, DECLARATIONS, FORMULES_NSIA, membre, TAUX_COMMISSION_NSIA,
 } from "@/lib/data";

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Save } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 
 export const Route = createFileRoute("/admin/membres/nouveau")({
   beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },

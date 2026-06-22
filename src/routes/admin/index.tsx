@@ -12,7 +12,7 @@ import {
   Users, UserCheck, UserMinus, UserX, Wallet, HandCoins, AlertTriangle,
   FileCheck, ShieldCheck, Activity, ArrowUpRight, Sparkles, Building2,
 } from "lucide-react";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import {
   MEMBRES, DECLARATIONS, ASSISTANCES, statsAnzrbo, aJour,
   COTISATIONS, ayantsDroitDe,

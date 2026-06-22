@@ -12,7 +12,7 @@ import {
   readClientDiagnostics,
   type ClientDiagnosticEvent,
 } from "@/lib/client-diagnostics";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 
 type BuildManifest = {
   checkedAt?: string;

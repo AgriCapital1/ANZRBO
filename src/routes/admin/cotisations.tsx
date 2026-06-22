@@ -4,7 +4,7 @@ import { DashboardHeader, ADMIN_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useAuth } , clientRoleGuard } from "@/lib/auth";
+import { useAuth, clientRoleGuard } from "@/lib/auth";
 import { COTISATIONS, DECLARATIONS, MEMBRES, COTISATION_PAR_DECES, membre } from "@/lib/data";
 import { Wallet, AlertTriangle } from "lucide-react";
 
