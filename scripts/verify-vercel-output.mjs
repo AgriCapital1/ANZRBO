@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const expectedOutput = ".vercel/output";
@@ -34,9 +34,17 @@ if (publicFiles === 0) {
 }
 
 if (publicOutput !== distFallback) {
+  if (publicOutput.startsWith(`${distFallback}/`)) {
+    const tempDist = ".dist-public-output";
+    rmSync(tempDist, { recursive: true, force: true });
+    renameSync(publicOutput, tempDist);
+    rmSync(distFallback, { recursive: true, force: true });
+    renameSync(tempDist, distFallback);
+  } else {
   rmSync(distFallback, { recursive: true, force: true });
   mkdirSync(distFallback, { recursive: true });
   cpSync(publicOutput, distFallback, { recursive: true });
+  }
 }
 if (!existsSync(join(distFallback, "index.html"))) {
   const shellHtml = join(distFallback, "_shell.html");
