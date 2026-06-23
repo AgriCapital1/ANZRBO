@@ -2,7 +2,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFile
 import { join } from "node:path";
 
 const expectedOutput = ".vercel/output";
-const publicOutputCandidates = [".vercel/output/static", ".output/public", "dist"];
+const publicOutputCandidates = [".vercel/output/static", ".output/public", "dist/client"];
 const serverEntryCandidates = [".vercel/output/functions/__server.func/index.mjs", ".output/server/index.mjs"];
 const distFallback = "dist";
 
@@ -39,10 +39,7 @@ if (publicOutput !== distFallback) {
   cpSync(publicOutput, distFallback, { recursive: true });
 }
 if (!existsSync(join(distFallback, "index.html"))) {
-  writeFileSync(
-    join(distFallback, "index.html"),
-    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ANZRBO</title></head><body><p>ANZRBO — sortie SSR générée dans .vercel/output.</p></body></html>\n`,
-  );
+  fail(`${distFallback}/index.html est introuvable : la sortie publique ne doit pas être remplacée par une page factice.`);
 }
 
 const manifest = {
