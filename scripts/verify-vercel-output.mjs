@@ -39,7 +39,11 @@ if (publicOutput !== distFallback) {
   cpSync(publicOutput, distFallback, { recursive: true });
 }
 if (!existsSync(join(distFallback, "index.html"))) {
-  fail(`${distFallback}/index.html est introuvable : la sortie publique ne doit pas être remplacée par une page factice.`);
+  const shellHtml = join(distFallback, "_shell.html");
+  if (!existsSync(shellHtml)) {
+    fail(`${distFallback}/index.html est introuvable et aucun shell applicatif réel (_shell.html) n'a été généré.`);
+  }
+  cpSync(shellHtml, join(distFallback, "index.html"));
 }
 
 const manifest = {
