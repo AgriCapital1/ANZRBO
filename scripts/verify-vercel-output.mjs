@@ -1,8 +1,8 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const expectedOutput = ".vercel/output";
-const publicOutputCandidates = [".vercel/output/static", ".output/public", "dist"];
+const publicOutputCandidates = [".vercel/output/static", ".output/public", "dist/client"];
 const serverEntryCandidates = [".vercel/output/functions/__server.func/index.mjs", ".output/server/index.mjs"];
 const distFallback = "dist";
 
@@ -34,15 +34,24 @@ if (publicFiles === 0) {
 }
 
 if (publicOutput !== distFallback) {
+  if (publicOutput.startsWith(`${distFallback}/`)) {
+    const tempDist = ".dist-public-output";
+    rmSync(tempDist, { recursive: true, force: true });
+    renameSync(publicOutput, tempDist);
+    rmSync(distFallback, { recursive: true, force: true });
+    renameSync(tempDist, distFallback);
+  } else {
   rmSync(distFallback, { recursive: true, force: true });
   mkdirSync(distFallback, { recursive: true });
   cpSync(publicOutput, distFallback, { recursive: true });
+  }
 }
 if (!existsSync(join(distFallback, "index.html"))) {
-  writeFileSync(
-    join(distFallback, "index.html"),
-    `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ANZRBO</title></head><body><p>ANZRBO — sortie SSR générée dans .vercel/output.</p></body></html>\n`,
-  );
+  const shellHtml = join(distFallback, "_shell.html");
+  if (!existsSync(shellHtml)) {
+    fail(`${distFallback}/index.html est introuvable et aucun shell applicatif réel (_shell.html) n'a été généré.`);
+  }
+  cpSync(shellHtml, join(distFallback, "index.html"));
 }
 
 const manifest = {
