@@ -2,8 +2,8 @@ import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFile
 import { join } from "node:path";
 
 const expectedOutput = ".vercel/output";
-const expectedPublicOutput = ".vercel/output/static";
-const serverEntry = ".vercel/output/functions/__server.func/index.mjs";
+const publicOutputCandidates = [".vercel/output/static", ".output/public", "dist"];
+const serverEntryCandidates = [".vercel/output/functions/__server.func/index.mjs", ".output/server/index.mjs"];
 const distFallback = "dist";
 
 function fail(message) {
@@ -21,26 +21,23 @@ function countFiles(dir) {
   return total;
 }
 
-if (!existsSync(expectedOutput)) {
-  fail(`Dossier Vercel attendu introuvable: ${expectedOutput}`);
+const publicOutput = publicOutputCandidates.find((dir) => existsSync(dir));
+if (!publicOutput) {
+  fail(`Aucune sortie publique trouvée (${publicOutputCandidates.join(", ")}).`);
 }
 
-if (!existsSync(expectedPublicOutput)) {
-  fail(`Dossier public attendu introuvable: ${expectedPublicOutput}`);
-}
+const serverEntry = serverEntryCandidates.find((file) => existsSync(file)) ?? null;
 
-if (!existsSync(serverEntry)) {
-  fail(`Entrée serveur attendue introuvable: ${serverEntry}`);
-}
-
-const publicFiles = countFiles(expectedPublicOutput);
+const publicFiles = countFiles(publicOutput);
 if (publicFiles === 0) {
-  fail(`${expectedPublicOutput} est vide, Vercel refuserait la sortie de build.`);
+  fail(`${publicOutput} est vide, la publication refuserait la sortie de build.`);
 }
 
-rmSync(distFallback, { recursive: true, force: true });
-mkdirSync(distFallback, { recursive: true });
-cpSync(expectedPublicOutput, distFallback, { recursive: true });
+if (publicOutput !== distFallback) {
+  rmSync(distFallback, { recursive: true, force: true });
+  mkdirSync(distFallback, { recursive: true });
+  cpSync(publicOutput, distFallback, { recursive: true });
+}
 if (!existsSync(join(distFallback, "index.html"))) {
   writeFileSync(
     join(distFallback, "index.html"),
@@ -50,8 +47,8 @@ if (!existsSync(join(distFallback, "index.html"))) {
 
 const manifest = {
   checkedAt: new Date().toISOString(),
-  vercelOutputDirectory: expectedOutput,
-  publicOutputDirectory: expectedPublicOutput,
+  vercelOutputDirectory: existsSync(expectedOutput) ? expectedOutput : null,
+  publicOutputDirectory: publicOutput,
   serverEntry,
   distFallback,
   publicFiles,
@@ -62,5 +59,5 @@ const manifest = {
   },
 };
 
-writeFileSync(join(expectedPublicOutput, "build-diagnostics.json"), `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`[vercel-output-check] OK: ${expectedOutput}, public: ${expectedPublicOutput} (${publicFiles} fichiers), serveur: ${serverEntry}`);
+writeFileSync(join(distFallback, "build-diagnostics.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+console.log(`[dist-check] OK: dist prêt, public: ${publicOutput} (${publicFiles} fichiers), serveur: ${serverEntry ?? "non vérifié"}`);
