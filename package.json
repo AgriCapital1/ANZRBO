@@ -7,7 +7,7 @@
     "dev": "vite dev",
     "build": "rm -rf .output .vite node_modules/.vite dist && vite build && bun scripts/verify-vercel-output.mjs",
     "build:vercel": "rm -rf .output .vite node_modules/.vite dist && vite build --mode production && bun scripts/verify-vercel-output.mjs",
-    "build:dev": "vite build --mode development",
+    "build:dev": "rm -rf .output .vite node_modules/.vite dist && vite build --mode development && bun scripts/verify-vercel-output.mjs",
     "preview": "vite preview",
     "start": "node .output/server/index.mjs",
     "lint": "eslint .",
