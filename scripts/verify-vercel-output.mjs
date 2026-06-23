@@ -37,14 +37,29 @@ function countFiles(dir) {
   return total;
 }
 
-const serverEntry = serverEntryCandidates.find((file) => existsSync(file)) ?? null;
+function findServerEntry() {
+  const explicitEntry = serverEntryCandidates.find((file) => existsSync(file));
+  if (explicitEntry) return explicitEntry;
+
+  const functionsDir = ".vercel/output/functions";
+  if (!existsSync(functionsDir)) return null;
+
+  for (const entry of readdirSync(functionsDir)) {
+    const candidate = join(functionsDir, entry, "index.mjs");
+    if (entry.endsWith(".func") && existsSync(candidate)) return candidate;
+  }
+
+  return null;
+}
+
+const serverEntry = findServerEntry();
 const publicOutput = publicOutputCandidates.find((dir) => existsSync(dir)) ?? null;
 if (!publicOutput && !serverEntry) {
   fail(`Aucune sortie publique ou serveur trouvée (${publicOutputCandidates.join(", ")} / ${serverEntryCandidates.join(", ")}).`);
 }
 
 const publicFiles = publicOutput ? countFiles(publicOutput) : 0;
-if (publicOutput && publicFiles === 0) {
+if (publicOutput && publicFiles === 0 && !serverEntry) {
   fail(`${publicOutput} est vide, la publication refuserait la sortie de build.`);
 }
 
