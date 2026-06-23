@@ -18,7 +18,6 @@ const appShell = `<!doctype html>
   </head>
   <body>
     <div id="root"></div>
-    <script>location.replace(location.pathname + location.search + location.hash)</script>
   </body>
 </html>
 `;
