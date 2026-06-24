@@ -103,7 +103,6 @@ function AdminDashboard() {
           <KPI icon={UserMinus} label="Suspendus" value={s.suspendus} gradient="from-amber-500 to-orange-600" />
           <KPI icon={UserX} label="Décès déclarés" value={s.decedes} gradient="from-rose-500 to-red-600" />
 
-          <KPI icon={Building2} label="Frais inscription (DigitOrg)" value={fmt(s.fraisInscription)} gradient="from-slate-500 to-slate-700" />
           <KPI icon={Wallet} label="Cotisations collectées" value={fmt(s.totalCotPayees)} gradient="from-purple-500 to-pink-600" trend={`${s.nbCotPayees} paiements`} />
           <KPI icon={HandCoins} label="Part association" value={fmt(s.partAssociation)} gradient="from-cyan-500 to-blue-600" />
           <KPI icon={AlertTriangle} label="Cotisations en attente" value={fmt(s.totalEnAttente)} gradient="from-red-500 to-rose-600" trend={`${s.nbEnAttente} en retard`} />
@@ -114,7 +113,6 @@ function AdminDashboard() {
           <KPI icon={HandCoins} label="Commission NSIA (25%)" value={fmt(s.commissionsNsia)} gradient="from-amber-500 to-yellow-600" />
 
           <KPI icon={Activity} label="Décès déclarés (total)" value={s.nbDeclarations} gradient="from-gray-500 to-gray-700" />
-          <KPI icon={Building2} label="Part DigitOrg" value={fmt(s.partDigitorg)} gradient="from-stone-500 to-stone-700" />
         </section>
 
         <section className="grid gap-4 lg:grid-cols-3">
