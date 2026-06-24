@@ -12,7 +12,8 @@ import {
   MEMBRES, ayantsDroitDe, cotisationsDuMembre, souscriptionDe,
   declarationsDuMembre, aJour, Membre,
 } from "@/lib/data";
-import { Search, Users, Eye } from "lucide-react";
+import { Search, Users, Eye, IdCard, ExternalLink } from "lucide-react";
+import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
 
 export const Route = createFileRoute("/admin/membres/")({
   beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
