@@ -5,15 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MEMBRES } from "@/lib/data";
-import { MemberCardBoth } from "@/components/MemberCard";
+import { MEMBRES, type Membre } from "@/lib/data";
+import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
 import logo from "@/assets/anzrbo-logo.png";
 
 export const Route = createFileRoute("/carte")({
   component: Page,
   head: () => ({ meta: [
     { title: "Portail imprimeur — Cartes ANZRBO" },
-    { name: "description", content: "Portail réservé à l'imprimeur partenaire ANZRBO : recherche, aperçu et impression de la carte officielle de membre." },
+    { name: "description", content: "Portail réservé à l'imprimeur partenaire ANZRBO : recherche, aperçu et impression des cartes officielles de membre." },
     { name: "robots", content: "noindex,nofollow" },
   ]}),
 });
@@ -24,7 +24,7 @@ function Page() {
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState<string | null>(null);
 
-  const member = useMemo(() => {
+  const member: Membre | null = useMemo(() => {
     if (!submitted) return null;
     const q = submitted.trim();
     const d = digits(q);
@@ -42,7 +42,6 @@ function Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7f3e9] via-white to-[#eaf2ec] print:bg-white">
-      {/* CSS impression : exactement 1 carte CR80 par page */}
       <style>{`
         @media print {
           @page { size: 85.6mm 53.98mm; margin: 0; }
@@ -75,8 +74,8 @@ function Page() {
           <CardContent className="p-6">
             <h1 className="text-2xl font-bold text-[#0c5b2e]">Rechercher un membre</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Saisissez le numéro de téléphone du membre (ou son matricule <span className="font-mono">ANZRBO-...</span>) pour générer
-              sa carte officielle recto/verso au format CR80 (85,6 × 53,98 mm).
+              Saisissez le numéro de téléphone du membre (ou son matricule <span className="font-mono">ANZRBO-...</span>)
+              pour générer sa carte officielle recto/verso au format CR80 (85,6 × 53,98 mm).
             </p>
 
             <form onSubmit={onSubmit} className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
@@ -133,30 +132,20 @@ function Page() {
                 Aperçu à l'échelle réelle (1:1). Le QR code pointe vers la fiche publique du membre et reste vérifiable même après impression.
               </p>
               <div className="flex flex-col items-center gap-8">
-                <div className="print-page">
-                  <div className="card-anzrbo-wrapper">
-                    {/* RECTO */}
-                  </div>
-                </div>
+                <MemberCardRecto m={member} />
+                <MemberCardVerso m={member} />
               </div>
-              <MemberCardBoth m={member} />
             </div>
           </section>
         )}
       </main>
 
-      {/* Pages d'impression dédiées : 1 carte par page A4-CR80 */}
       {member && (
         <div className="hidden print:block">
-          <div className="print-page"><MemberCardRectoOnly m={member} /></div>
-          <div className="print-page"><MemberCardVersoOnly m={member} /></div>
+          <div className="print-page"><MemberCardRecto m={member} /></div>
+          <div className="print-page"><MemberCardVerso m={member} /></div>
         </div>
       )}
     </div>
   );
 }
-
-// helpers d'impression sans l'écart vertical
-import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
-function MemberCardRectoOnly({ m }: { m: typeof MEMBRES[number] }) { return <MemberCardRecto m={m} />; }
-function MemberCardVersoOnly({ m }: { m: typeof MEMBRES[number] }) { return <MemberCardVerso m={m} />; }
