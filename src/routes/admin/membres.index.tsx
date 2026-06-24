@@ -12,7 +12,8 @@ import {
   MEMBRES, ayantsDroitDe, cotisationsDuMembre, souscriptionDe,
   declarationsDuMembre, aJour, Membre,
 } from "@/lib/data";
-import { Search, Users, Eye } from "lucide-react";
+import { Search, Users, Eye, IdCard, ExternalLink } from "lucide-react";
+import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
 
 export const Route = createFileRoute("/admin/membres/")({
   beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
@@ -176,6 +177,30 @@ function FicheMembre({ m }: { m: Membre }) {
           {m.paiementInscription.typePreuve === "id_transaction" ? ` ID transaction : ${m.paiementInscription.idTransaction}` : " Justificatif (photo/document)"} —
           {" "}{m.paiementInscription.montant.toLocaleString("fr-FR")} F le {new Date(m.paiementInscription.date).toLocaleDateString("fr-FR")}
         </p>
+      </section>
+
+      <section className="rounded-md border border-[#0c5b2e]/15 bg-[#f7f3e9]/40 p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h3 className="flex items-center gap-2 font-semibold text-[#0c5b2e]">
+            <IdCard className="h-4 w-4" /> Carte officielle de membre
+          </h3>
+          <div className="flex gap-2">
+            <Button asChild size="sm" variant="outline">
+              <a href={`/verifier/${encodeURIComponent(m.numeroMembre)}`} target="_blank" rel="noreferrer">
+                Fiche publique <ExternalLink className="ml-1 h-3 w-3" />
+              </a>
+            </Button>
+            <Button asChild size="sm" className="bg-[#0c5b2e] hover:bg-[#0a4a26]">
+              <a href={`/carte?q=${encodeURIComponent(m.telephone)}`} target="_blank" rel="noreferrer">
+                Portail imprimeur
+              </a>
+            </Button>
+          </div>
+        </div>
+        <div className="flex flex-col items-center gap-4">
+          <MemberCardRecto m={m} />
+          <MemberCardVerso m={m} />
+        </div>
       </section>
     </div>
   );
