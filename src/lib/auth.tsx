@@ -21,10 +21,12 @@ type Account = LocalUser & { passwordHash: string };
 
 const STORAGE_KEY = "anzrbo_local_session_v2";
 
-// SHA-256("12345678") — mot de passe de démonstration partagé. Ce condensé
-// n'est PAS un secret : il documente la valeur attendue côté client.
+// Condensé d'un mot de passe partagé entre les comptes de démonstration.
+// La valeur en clair n'est PAS documentée ici et doit être communiquée
+// hors-bande par l'administrateur. Pour la production, migrer vers Supabase
+// Auth avec vérification serveur (par-utilisateur, salt + bcrypt/argon2).
 const DEMO_PWD_HASH =
-  "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f";
+  (import.meta.env.VITE_ANZRBO_DEMO_PWD_HASH as string | undefined) ?? "";
 
 const ACCOUNTS: Account[] = [
   {
