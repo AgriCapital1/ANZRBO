@@ -92,7 +92,7 @@ function NouveauMembre() {
       return;
     }
 
-    const { data: inserted, error } = await supabase.from("members").insert(memberPayload).select("id,numero_membre").single();
+    const { data: inserted, error } = await (supabase as any).from("members").insert(memberPayload).select("id,numero_membre").single();
     if (error) {
       const networkFailure = !navigator.onLine || /fetch failed|network|load failed|failed to fetch/i.test(error.message ?? "");
       if (networkFailure) {
@@ -115,7 +115,7 @@ function NouveauMembre() {
         date_naissance: a.dateNaissance,
       };
     });
-    const { error: dependantError } = await supabase.from("ayants_droit").insert(dependants);
+    const { error: dependantError } = await (supabase as any).from("ayants_droit").insert(dependants);
     if (dependantError) {
       toast.error(`Membre enregistré (${inserted.numero_membre}), mais les ayants droit n'ont pas été enregistrés : ${dependantError.message}. Reprenez la fiche pour terminer.`);
       nav({ to: "/admin/membres" });
