@@ -41,7 +41,7 @@ function Page() {
           .select("id,numero_membre,nom,prenoms,telephone,contact2,photo_url,date_inscription,statut")
           .eq("numero_membre", q.toUpperCase()).maybeSingle();
       } else {
-        const digits = q.replace(/\\D/g, "");
+        const digits = q.replace(/\D/g, "");
         result = await db.from("members")
           .select("id,numero_membre,nom,prenoms,telephone,contact2,photo_url,date_inscription,statut")
           .or(`telephone.eq.${digits},contact2.eq.${digits}`).maybeSingle();
@@ -55,7 +55,7 @@ function Page() {
           nom: m.nom,
           prenoms: m.prenoms,
           dateInscription: m.date_inscription,
-          statut: m.statut === "actif" || m.statut === "suspendu" || m.statut === "decede" ? m.statut : "en_attente",
+          statut: ["actif", "suspendu", "decede", "en_attente"].includes(m.statut) ? m.statut : "en_attente",
         });
       }
     } catch (e) {
@@ -63,18 +63,6 @@ function Page() {
     } finally {
       setSearching(false);
     }
-  }
-
-  return (
-      MEMBRES.find((m) => digits(m.telephone) === d || digits(m.contact2 ?? "") === d) ||
-      MEMBRES.find((m) => m.numeroMembre.toLowerCase() === q.toLowerCase()) ||
-      null
-    );
-  }, [submitted]);
-
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitted(query);
   }
 
   return (
