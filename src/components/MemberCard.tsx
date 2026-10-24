@@ -3,6 +3,8 @@ import QRCode from "qrcode";
 import logo from "@/assets/anzrbo-logo.png";
 import type { Membre } from "@/lib/data";
 
+type CardMember = Pick<Membre, "numeroMembre" | "photoUrl" | "nom" | "prenoms" | "dateInscription"> & { statut: "actif" | "suspendu" | "decede" | "en_attente" };
+
 /**
  * Carte de membre ANZRBO — format CR80 (85,60 × 53,98 mm — standard ISO/IEC 7810 ID-1,
  * équivalent ~ 8,5 × 5,4 cm). La carte est rendue à 1:1 sur écran à 96dpi
@@ -25,13 +27,14 @@ function formatDateFr(iso: string) {
   }
 }
 
-function statutLabel(s: Membre["statut"]) {
+function statutLabel(s: CardMember["statut"]) {
   if (s === "actif") return "MEMBRE ACTIF";
   if (s === "suspendu") return "MEMBRE SUSPENDU";
+  if (s === "en_attente") return "MEMBRE EN ATTENTE";
   return "MEMBRE DÉCÉDÉ";
 }
 
-function photoFor(m: Membre) {
+function photoFor(m: CardMember) {
   if (m.photoUrl) return m.photoUrl;
   // Avatar généré déterministe (DiceBear) — pas de PII réelle.
   const seed = encodeURIComponent(m.numeroMembre);
@@ -55,7 +58,7 @@ export function useMemberQr(numeroMembre: string) {
   return dataUrl;
 }
 
-export function MemberCardRecto({ m }: { m: Membre }) {
+export function MemberCardRecto({ m }: { m: CardMember }) {
   const qr = useMemberQr(m.numeroMembre);
   return (
     <div
@@ -132,7 +135,7 @@ export function MemberCardRecto({ m }: { m: Membre }) {
             <div className="text-[1.5mm] font-semibold tracking-wider text-[#777]">STATUT</div>
             <div
               className={`inline-block rounded-[0.8mm] px-[1.5mm] py-[0.4mm] text-[1.7mm] font-bold text-white ${
-                m.statut === "actif" ? "bg-[#0c5b2e]" : m.statut === "suspendu" ? "bg-[#b0791f]" : "bg-[#8a1c1c]"
+                m.statut === "actif" ? "bg-[#0c5b2e]" : m.statut === "suspendu" || m.statut === "en_attente" ? "bg-[#b0791f]" : "bg-[#8a1c1c]"
               }`}
             >
               {statutLabel(m.statut)}
@@ -167,7 +170,7 @@ export function MemberCardRecto({ m }: { m: Membre }) {
   );
 }
 
-export function MemberCardVerso({ m }: { m: Membre }) {
+export function MemberCardVerso({ m }: { m: CardMember }) {
   return (
     <div
       className="card-anzrbo relative overflow-hidden rounded-[3mm] bg-white text-[#1a1a1a] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.35)]"
@@ -222,7 +225,7 @@ export function MemberCardVerso({ m }: { m: Membre }) {
   );
 }
 
-export function MemberCardBoth({ m }: { m: Membre }) {
+export function MemberCardBoth({ m }: { m: CardMember }) {
   return (
     <div className="flex flex-col items-center gap-6">
       <MemberCardRecto m={m} />
