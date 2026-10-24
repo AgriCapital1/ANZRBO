@@ -84,7 +84,19 @@ function NouveauMembre() {
       created_by: user?.id ?? null,
     };
 
-    const draft: MemberDraft = { id: draftId, createdAt: new Date().toISOString(), member: memberPayload };
+    const dependantPayload = valides.map((a) => {
+      const parts = a.nom.trim().split(/\\s+/);
+      const relation = ["conjoint", "enfant", "pere", "mere", "frere", "soeur"].includes(a.lien) ? a.lien : "autre";
+      return {
+        id: crypto.randomUUID(),
+        relation,
+        nom: parts[0] ?? a.nom.trim(),
+        prenoms: parts.slice(1).join(" ") || parts[0] || a.nom.trim(),
+        date_naissance: a.dateNaissance,
+        beneficiaire_assistance: true,
+      };
+    });
+    const draft: MemberDraft = { id: draftId, createdAt: new Date().toISOString(), member: memberPayload, dependants: dependantPayload };
     if (!navigator.onLine) {
       queueMemberDraft(draft);
       toast.warning("Connexion indisponible : inscription conservée temporairement sur cet appareil et synchronisée automatiquement au retour du réseau.");
@@ -105,17 +117,8 @@ function NouveauMembre() {
       return;
     }
 
-    const dependants = valides.map((a) => {
-      const parts = a.nom.trim().split(/\s+/);
-      return {
-        member_id: inserted.id,
-        relation: a.lien,
-        nom: parts[0] ?? a.nom.trim(),
-        prenoms: parts.slice(1).join(" ") || parts[0] || a.nom.trim(),
-        date_naissance: a.dateNaissance,
-      };
-    });
-    const { error: dependantError } = await (supabase as any).from("ayants_droit").insert(dependants);
+    const dependants = draft.dependants.map((a) => ({ ...a, member_id: inserted.id }));
+    const { error: dependantError } = await (supabase as any).from("ayants_droit").upsert(dependants, { onConflict: "id", ignoreDuplicates: true });
     if (dependantError) {
       toast.error(`Membre enregistré (${inserted.numero_membre}), mais les ayants droit n'ont pas été enregistrés : ${dependantError.message}. Reprenez la fiche pour terminer.`);
       nav({ to: "/admin/membres" });
