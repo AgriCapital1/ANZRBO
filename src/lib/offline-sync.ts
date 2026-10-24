@@ -12,10 +12,13 @@ export type MemberDraft = {
     inscription_mode_paiement: string; inscription_type_preuve: string;
     inscription_reference: string | null; notes: string; created_by: string | null;
   };
+  dependants: Array<{
+    id: string; nom: string; prenoms: string; relation: string;
+    date_naissance: string; beneficiaire_assistance: boolean;
+  }>;
 };
 
 const KEY = "anzrbo:pending-member-writes:v1";
-
 function readQueue(): MemberDraft[] {
   if (typeof window === "undefined") return [];
   try {
@@ -40,17 +43,23 @@ export async function syncPendingMemberDrafts() {
   let synced = 0;
   for (const draft of queue) {
     const marker = `offline_draft_id:${draft.id}`;
-    const { data: existing, error: lookupError } = await supabase
-      .from("members").select("id").eq("notes", marker).maybeSingle();
+    const db = (supabase as any);
+    let { data: existing, error: lookupError } = await db.from("members").select("id").eq("notes", marker).maybeSingle();
     if (lookupError) break;
-    if (existing) {
-      queue = queue.filter((item) => item.id !== draft.id);
-      writeQueue(queue);
-      synced++;
-      continue;
+    let memberId: string | null = existing?.id ?? null;
+    if (!memberId) {
+      const { data, error } = await db.from("members")
+        .insert({ ...draft.member, notes: marker })
+        .select("id").single();
+      if (error) break;
+      memberId = data?.id ?? null;
     }
-    const { error } = await (supabase as any).from("members").insert({ ...draft.member, notes: marker });
-    if (error) break;
+    if (!memberId) break;
+    if (draft.dependants.length) {
+      const rows = draft.dependants.map((item) => ({ ...item, member_id: memberId }));
+      const { error } = await db.from("ayants_droit").upsert(rows, { onConflict: "id", ignoreDuplicates: true });
+      if (error) break;
+    }
     queue = queue.filter((item) => item.id !== draft.id);
     writeQueue(queue);
     synced++;
