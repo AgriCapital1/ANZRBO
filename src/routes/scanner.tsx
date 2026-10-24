@@ -21,9 +21,19 @@ export const Route = createFileRoute("/scanner")({
 function parseTelephone(raw: string): string | null {
   const v = raw.trim();
   if (!v) return null;
-  // Accepte une URL .../verifier/0700000000 ou un numéro brut
-  const m = v.match(/(?:\/m\/|\/verifier\/)([^/?#]+)/i);
-  if (m) return decodeURIComponent(m[1]);
+
+  // Les QR des cartes contiennent l'URL /verifier/<matricule>.
+  // Préserver le matricule complet : le réduire aux chiffres le rend introuvable.
+  const match = v.match(/(?:\/m\/|\/verifier\/)([^/?#]+)/i);
+  if (match) {
+    try { return decodeURIComponent(match[1]).trim(); }
+    catch { return match[1].trim(); }
+  }
+
+  // La saisie manuelle accepte aussi bien un matricule que le téléphone.
+  if (/^ANZRBO[-\s]?\d{4}[-\s]?\d+$/i.test(v)) {
+    return v.replace(/\s+/g, "").toUpperCase();
+  }
   return v.replace(/[^+\d]/g, "");
 }
 
