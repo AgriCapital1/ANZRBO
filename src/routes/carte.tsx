@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Printer, Download, Search, ShieldCheck, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { MEMBRES, type Membre } from "@/lib/data";
+import { supabase } from "@/integrations/supabase/client";
 import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
 import logo from "@/assets/anzrbo-logo.png";
 
@@ -18,17 +18,54 @@ export const Route = createFileRoute("/carte")({
   ]}),
 });
 
-function digits(v: string) { return v.replace(/\D/g, ""); }
-
 function Page() {
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState<string | null>(null);
+  const [member, setMember] = useState<any>(null);
+  const [searching, setSearching] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
-  const member: Membre | null = useMemo(() => {
-    if (!submitted) return null;
-    const q = submitted.trim();
-    const d = digits(q);
-    return (
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const q = query.trim();
+    setSubmitted(q);
+    setMember(null);
+    setLookupError(null);
+    if (!q) return;
+    setSearching(true);
+    try {
+      const db = (supabase as any);
+      let result;
+      if (/^ANZRBO/i.test(q)) {
+        result = await db.from("members")
+          .select("id,numero_membre,nom,prenoms,telephone,contact2,photo_url,date_inscription,statut")
+          .eq("numero_membre", q.toUpperCase()).maybeSingle();
+      } else {
+        const digits = q.replace(/\\D/g, "");
+        result = await db.from("members")
+          .select("id,numero_membre,nom,prenoms,telephone,contact2,photo_url,date_inscription,statut")
+          .or(`telephone.eq.${digits},contact2.eq.${digits}`).maybeSingle();
+      }
+      if (result.error) throw result.error;
+      if (result.data) {
+        const m = result.data;
+        setMember({
+          numeroMembre: m.numero_membre,
+          photoUrl: m.photo_url,
+          nom: m.nom,
+          prenoms: m.prenoms,
+          dateInscription: m.date_inscription,
+          statut: m.statut === "actif" || m.statut === "suspendu" || m.statut === "decede" ? m.statut : "en_attente",
+        });
+      }
+    } catch (e) {
+      setLookupError(e instanceof Error ? e.message : "Lecture du registre central impossible.");
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  return (
       MEMBRES.find((m) => digits(m.telephone) === d || digits(m.contact2 ?? "") === d) ||
       MEMBRES.find((m) => m.numeroMembre.toLowerCase() === q.toLowerCase()) ||
       null
@@ -89,18 +126,19 @@ function Page() {
                 />
               </div>
               <Button type="submit" className="h-12 bg-[#0c5b2e] hover:bg-[#0a4a26]">
-                <Search className="mr-2 h-4 w-4" /> Rechercher
+                <Search className="mr-2 h-4 w-4" /> {searching ? "Recherche…" : "Rechercher"}
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {submitted && !member && (
+        {submitted && !member && !searching && (
           <Card className="mt-6 border-red-200 bg-red-50">
             <CardContent className="flex items-center gap-3 p-5 text-red-700">
               <XCircle className="h-5 w-5" />
               <div>
-                <div className="font-semibold">Aucun membre trouvé pour « {submitted} »</div>
+                <div className="font-semibold">{lookupError ? "Lecture de la base de données impossible" : `Aucun membre trouvé pour « ${submitted} »`}</div>
+                {lookupError && <div className="text-sm">{lookupError}</div>}
                 <div className="text-sm">Vérifiez le numéro saisi ou contactez le secrétariat ANZRBO.</div>
               </div>
             </CardContent>
