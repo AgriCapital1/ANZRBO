@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth, clientRoleGuard } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { queueMemberDraft, syncPendingMemberDrafts, type MemberDraft } from "@/lib/offline-sync";
 
 export const Route = createFileRoute("/admin/membres/nouveau")({
   beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
@@ -46,9 +48,8 @@ function NouveauMembre() {
   function rmAyant(i: number) { setAyants((a) => a.filter((_, k) => k !== i)); }
   function updAyant(i: number, p: Partial<Ayant>) { setAyants((a) => a.map((x, k) => k === i ? { ...x, ...p } : x)); }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!photo) return toast.error("Photo du membre obligatoire.");
     if (!form.nom || !form.prenoms || !form.telephone || !form.village || !form.dateNaissance || !form.lieuNaissance) {
       return toast.error("Champs obligatoires manquants.");
     }
@@ -58,8 +59,73 @@ function NouveauMembre() {
     const valides = ayants.filter((a) => a.lien && a.nom && a.dateNaissance && a.lieuNaissance);
     if (valides.length < 1) return toast.error("Au moins 1 ayant droit complet est requis.");
 
-    toast.success(`Membre ${form.prenoms} ${form.nom} enregistré (mode local). Numéro généré : ANZRBO-2026-XXXXX.`);
-    setTimeout(() => nav({ to: "/admin/membres" }), 800);
+    const draftId = crypto.randomUUID();
+    const memberPayload = {
+      nom: form.nom.trim(),
+      prenoms: form.prenoms.trim(),
+      telephone: form.telephone.trim(),
+      contact2: form.contact2.trim() || null,
+      sous_prefecture: form.sousPrefecture,
+      village: form.village.trim(),
+      quartier: form.quartier.trim() || null,
+      ville: "Bonon",
+      date_naissance: form.dateNaissance,
+      lieu_naissance: form.lieuNaissance.trim(),
+      date_inscription: new Date().toISOString().slice(0, 10),
+      statut: "en_attente" as const,
+      urgence_nom: form.urgenceNom.trim(),
+      urgence_contact1: form.urgenceC1.trim(),
+      urgence_contact2: form.urgenceC2.trim() || null,
+      urgence_adresse: form.urgenceAdresse.trim(),
+      inscription_mode_paiement: form.mode,
+      inscription_type_preuve: form.typePreuve,
+      inscription_reference: form.typePreuve === "id_transaction" ? form.idTransaction.trim() : null,
+      notes: `offline_draft_id:${draftId}`,
+      created_by: user?.id ?? null,
+    };
+
+    const draft: MemberDraft = { id: draftId, createdAt: new Date().toISOString(), member: memberPayload };
+    if (!navigator.onLine) {
+      queueMemberDraft(draft);
+      toast.warning("Connexion indisponible : inscription conservée temporairement sur cet appareil et synchronisée automatiquement au retour du réseau.");
+      nav({ to: "/admin/membres" });
+      return;
+    }
+
+    const { data: inserted, error } = await supabase.from("members").insert(memberPayload).select("id,numero_membre").single();
+    if (error) {
+      const networkFailure = !navigator.onLine || /fetch failed|network|load failed|failed to fetch/i.test(error.message ?? "");
+      if (networkFailure) {
+        queueMemberDraft(draft);
+        toast.warning("Réseau interrompu : inscription mise en attente sur cet appareil. Elle sera synchronisée automatiquement.");
+        nav({ to: "/admin/membres" });
+        return;
+      }
+      toast.error(`Enregistrement refusé par la base de données : ${error.message}`);
+      return;
+    }
+
+    const dependants = valides.map((a) => {
+      const parts = a.nom.trim().split(/\s+/);
+      return {
+        member_id: inserted.id,
+        relation: a.lien,
+        nom: parts[0] ?? a.nom.trim(),
+        prenoms: parts.slice(1).join(" ") || parts[0] || a.nom.trim(),
+        date_naissance: a.dateNaissance,
+      };
+    });
+    const { error: dependantError } = await supabase.from("ayants_droit").insert(dependants);
+    if (dependantError) {
+      toast.error(`Membre enregistré (${inserted.numero_membre}), mais les ayants droit n'ont pas été enregistrés : ${dependantError.message}. Reprenez la fiche pour terminer.`);
+      nav({ to: "/admin/membres" });
+      return;
+    }
+
+    // Payment evidence is not recorded as paid until it is persisted and reviewed.
+    await syncPendingMemberDrafts();
+    toast.success(`Membre ${inserted.numero_membre} enregistré dans la base de données.`);
+    nav({ to: "/admin/membres" });
   }
 
   if (loading || !user) return <div className="flex min-h-screen items-center justify-center">Chargement…</div>;
