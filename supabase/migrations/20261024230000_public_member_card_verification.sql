@@ -1,6 +1,6 @@
 -- Public, minimal lookup for QR codes printed on ANZRBO membership cards.
--- Exposes only fields needed to verify a card; never returns emergency contacts,
--- payments, CNI, email, or dependants.
+-- Only the fields needed for card verification are returned. No CNI, email,
+-- emergency contacts, payments, dependants, or other private data are exposed.
 create or replace function public.verify_member_card(p_numero_membre text)
 returns table (
   numero_membre text,
@@ -30,6 +30,9 @@ as $function$
     m.statut::text
   from public.members as m
   where m.numero_membre = btrim(p_numero_membre)
+     or regexp_replace(coalesce(m.telephone, ''), '[^0-9]', '', 'g')
+        = regexp_replace(coalesce(btrim(p_numero_membre), ''), '[^0-9]', '', 'g')
+  order by (m.numero_membre = btrim(p_numero_membre)) desc
   limit 1;
 $function$;
 
