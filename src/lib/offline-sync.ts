@@ -49,7 +49,7 @@ export async function syncPendingMemberDrafts() {
       synced++;
       continue;
     }
-    const { error } = await supabase.from("members").insert({ ...draft.member, notes: marker });
+    const { error } = await (supabase as any).from("members").insert({ ...draft.member, notes: marker });
     if (error) break;
     queue = queue.filter((item) => item.id !== draft.id);
     writeQueue(queue);
