@@ -1,19 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DashboardHeader, ADMIN_NAV } from "@/components/DashboardHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth, clientRoleGuard } from "@/lib/auth";
-import {
-  MEMBRES, ayantsDroitDe, cotisationsDuMembre, souscriptionDe,
-  declarationsDuMembre, aJour, Membre,
-} from "@/lib/data";
-import { Search, Users, Eye, IdCard, ExternalLink } from "lucide-react";
-import { MemberCardRecto, MemberCardVerso } from "@/components/MemberCard";
+import { supabase } from "@/integrations/supabase/client";
+import { syncPendingMemberDrafts, pendingMemberDraftCount } from "@/lib/offline-sync";
+import { Search, Users, RefreshCw, WifiOff, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/membres/")({
   beforeLoad: () => { const r = clientRoleGuard(["admin_anzrbo"]); if (r) throw r; },
@@ -21,31 +18,80 @@ export const Route = createFileRoute("/admin/membres/")({
   head: () => ({ meta: [{ title: "Membres — Admin ANZRBO" }] }),
 });
 
+type MemberRow = {
+  id: string; numero_membre: string; nom: string; prenoms: string;
+  telephone: string; village: string | null; quartier: string | null;
+  statut: string; date_inscription: string; created_at: string;
+};
+
 function StatutBadge({ s }: { s: string }) {
-  const map: Record<string, string> = {
+  const styles: Record<string, string> = {
     actif: "bg-emerald-100 text-emerald-700",
     suspendu: "bg-amber-100 text-amber-700",
     decede: "bg-rose-100 text-rose-700",
+    archive: "bg-slate-100 text-slate-700",
+    en_attente: "bg-blue-100 text-blue-700",
   };
-  return <Badge className={map[s] ?? "bg-muted"}>{s}</Badge>;
+  return <Badge className={styles[s] ?? "bg-muted"}>{s.replace("_", " ")}</Badge>;
 }
 
 function ListeMembres() {
   const { user, loading } = useAuth();
   const nav = useNavigate();
-  useEffect(() => { if (!loading && (!user || user.role !== "admin_anzrbo")) nav({ to: "/login" }); }, [user, loading, nav]);
   const [q, setQ] = useState("");
-  const [selected, setSelected] = useState<Membre | null>(null);
+  const [members, setMembers] = useState<MemberRow[]>([]);
+  const [total, setTotal] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(0);
 
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return MEMBRES;
-    return MEMBRES.filter((m) =>
-      m.nom.toLowerCase().includes(s) || m.prenoms.toLowerCase().includes(s)
-      || m.telephone.includes(s) || m.numeroMembre.toLowerCase().includes(s)
-      || m.village.toLowerCase().includes(s)
-    );
+  useEffect(() => { if (!loading && (!user || user.role !== "admin_anzrbo")) nav({ to: "/login" }); }, [user, loading, nav]);
+
+  const loadMembers = useCallback(async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const db = (supabase as any);
+      let query = db.from("members")
+        .select("id,numero_membre,nom,prenoms,telephone,village,quartier,statut,date_inscription,created_at", { count: "exact" })
+        .order("created_at", { ascending: false });
+      const term = q.trim().replace(/[,%()]/g, " ");
+      if (term) {
+        const pattern = `%${term}%`;
+        query = query.or([
+          `nom.ilike.${pattern}`, `prenoms.ilike.${pattern}`,
+          `telephone.ilike.${pattern}`, `numero_membre.ilike.${pattern}`,
+          `village.ilike.${pattern}`, `quartier.ilike.${pattern}`,
+        ].join(","));
+      }
+      const { data, error: queryError, count } = await query;
+      if (queryError) throw queryError;
+      setMembers((data ?? []) as MemberRow[]);
+      setTotal(count ?? data?.length ?? 0);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Impossible de lire le registre officiel.");
+      setMembers([]);
+      setTotal(0);
+    } finally {
+      setBusy(false);
+      setPending(pendingMemberDraftCount());
+    }
   }, [q]);
+
+  useEffect(() => {
+    if (loading || !user) return;
+    void (async () => {
+      const sync = await syncPendingMemberDrafts();
+      setPending(sync.pending);
+      await loadMembers();
+    })();
+  }, [loading, user, loadMembers]);
+
+  useEffect(() => {
+    if (loading || !user) return;
+    const timer = window.setTimeout(() => { void loadMembers(); }, 250);
+    return () => window.clearTimeout(timer);
+  }, [q, loading, user, loadMembers]);
 
   if (loading || !user) return <div className="flex min-h-screen items-center justify-center">Chargement…</div>;
 
@@ -56,156 +102,41 @@ function ListeMembres() {
         <Card className="border-0 shadow-md">
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Liste des membres</CardTitle>
-              <CardDescription>{MEMBRES.length} membres enregistrés par l'administration ANZRBO.</CardDescription>
+              <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Registre officiel des membres</CardTitle>
+              <CardDescription>{total} résultat(s) lus depuis la base de données centrale.</CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input className="w-full pl-9 sm:w-80" placeholder="Nom, téléphone, n° membre…" value={q} onChange={(e) => setQ(e.target.value)} />
+                <Input className="w-full pl-9 sm:w-80" placeholder="Nom, téléphone, matricule, village…" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
+              <Button variant="outline" onClick={() => void loadMembers()} disabled={busy}><RefreshCw className={`mr-2 h-4 w-4 ${busy ? "animate-spin" : ""}`} /> Actualiser</Button>
               <Button asChild><Link to="/admin/membres/nouveau">+ Nouveau membre</Link></Button>
             </div>
           </CardHeader>
+          {pending > 0 && <div className="mx-6 mb-3 flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"><WifiOff className="h-4 w-4" /> {pending} inscription(s) en attente de synchronisation. Elles seront renvoyées lorsque le réseau sera disponible.</div>}
+          {error && <div className="mx-6 mb-3 flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /><div><b>Lecture de la base de données impossible.</b><div>{error}</div></div></div>}
           <CardContent className="overflow-x-auto">
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>N° Membre</TableHead><TableHead>Nom complet</TableHead>
-                  <TableHead>Téléphone</TableHead><TableHead>Village</TableHead>
-                  <TableHead>Statut</TableHead><TableHead>Ayants droit</TableHead>
-                  <TableHead>NSIA</TableHead><TableHead>À jour</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
+              <TableHeader><TableRow>
+                <TableHead>Matricule</TableHead><TableHead>Nom complet</TableHead><TableHead>Téléphone</TableHead>
+                <TableHead>Village</TableHead><TableHead>Statut</TableHead><TableHead>Inscription</TableHead>
+              </TableRow></TableHeader>
               <TableBody>
-                {filtered.map((m) => {
-                  const ns = souscriptionDe(m.id);
-                  return (
-                    <TableRow key={m.id}>
-                      <TableCell className="font-mono text-xs">{m.numeroMembre}</TableCell>
-                      <TableCell>{m.prenoms} {m.nom}</TableCell>
-                      <TableCell className="text-muted-foreground">{m.telephone}</TableCell>
-                      <TableCell>{m.village}</TableCell>
-                      <TableCell><StatutBadge s={m.statut} /></TableCell>
-                      <TableCell>{ayantsDroitDe(m.id).length}</TableCell>
-                      <TableCell>{ns ? `Formule ${ns.formule}` : "—"}</TableCell>
-                      <TableCell>{m.statut === "actif" ? (aJour(m.id) ? "✅" : "⚠️") : "—"}</TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" onClick={() => setSelected(m)}><Eye className="h-4 w-4" /></Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {members.map((m) => <TableRow key={m.id}>
+                  <TableCell className="font-mono text-xs">{m.numero_membre}</TableCell>
+                  <TableCell className="font-medium">{m.prenoms} {m.nom}</TableCell>
+                  <TableCell>{m.telephone}</TableCell>
+                  <TableCell>{m.village || m.quartier || "—"}</TableCell>
+                  <TableCell><StatutBadge s={m.statut} /></TableCell>
+                  <TableCell>{m.date_inscription ? new Date(m.date_inscription).toLocaleDateString("fr-FR") : "—"}</TableCell>
+                </TableRow>)}
+                {!busy && !error && members.length === 0 && <TableRow><TableCell colSpan={6} className="py-10 text-center text-muted-foreground">Aucun membre trouvé dans le registre central.</TableCell></TableRow>}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       </main>
-
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Fiche membre — {selected?.numeroMembre}</DialogTitle></DialogHeader>
-          {selected && <FicheMembre m={selected} />}
-        </DialogContent>
-      </Dialog>
     </div>
   );
-}
-
-function FicheMembre({ m }: { m: Membre }) {
-  const ad = ayantsDroitDe(m.id);
-  const cot = cotisationsDuMembre(m.id);
-  const ns = souscriptionDe(m.id);
-  const decl = declarationsDuMembre(m.id);
-  return (
-    <div className="space-y-4 text-sm">
-      <section className="grid grid-cols-2 gap-3 rounded-md bg-muted/40 p-4">
-        <Info l="Nom et prénoms" v={`${m.prenoms} ${m.nom}`} />
-        <Info l="Téléphone" v={m.telephone + (m.contact2 ? ` / ${m.contact2}` : "")} />
-        <Info l="Sous-préfecture / Village" v={`${m.sousPrefecture} / ${m.village}`} />
-        <Info l="Quartier / Campement" v={m.quartier || "—"} />
-        <Info l="Date / Lieu de naissance" v={`${new Date(m.dateNaissance).toLocaleDateString("fr-FR")} à ${m.lieuNaissance}`} />
-        <Info l="Date d'adhésion" v={new Date(m.dateInscription).toLocaleDateString("fr-FR")} />
-        <Info l="Statut" v={<StatutBadge s={m.statut} />} />
-        <Info l="Cotisations à jour" v={aJour(m.id) ? "Oui" : "Non"} />
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Personne d'urgence</h3>
-        <p className="text-muted-foreground">{m.urgence.nom} — {m.urgence.contact1}{m.urgence.contact2 ? ` / ${m.urgence.contact2}` : ""} — {m.urgence.adresse}</p>
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Ayants droit ({ad.length})</h3>
-        <ul className="mt-1 space-y-1 text-muted-foreground">
-          {ad.map((a) => (
-            <li key={a.id}>• {a.lien} — {a.nom} (né(e) le {new Date(a.dateNaissance).toLocaleDateString("fr-FR")} à {a.lieuNaissance})</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Souscription NSIA</h3>
-        {ns ? (
-          <p className="text-muted-foreground">
-            Formule {ns.formule} — bénéfice {ns.benefice.toLocaleString("fr-FR")} F/personne, {ns.nbPersonnes} personnes,
-            cotisation annuelle {ns.cotisationAnnuelle.toLocaleString("fr-FR")} F (depuis {new Date(ns.dateSouscription).toLocaleDateString("fr-FR")}).
-          </p>
-        ) : <p className="text-muted-foreground">Aucune souscription NSIA.</p>}
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Cotisations ({cot.length})</h3>
-        <p className="text-xs text-muted-foreground">
-          Payées : {cot.filter((c) => c.statut === "payee").length} — En retard : {cot.filter((c) => c.statut === "en_retard").length}
-        </p>
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Déclarations de décès liées ({decl.length})</h3>
-        <ul className="mt-1 space-y-1 text-muted-foreground">
-          {decl.map((d) => <li key={d.id}>• {d.defuntType === "principal" ? "Décès du membre" : "Décès ayant droit"} : {d.nomDefunt} le {new Date(d.dateDeces).toLocaleDateString("fr-FR")}</li>)}
-          {decl.length === 0 && <li>Aucune.</li>}
-        </ul>
-      </section>
-
-      <section>
-        <h3 className="font-semibold">Preuve d'inscription</h3>
-        <p className="text-muted-foreground">
-          {m.paiementInscription.mode === "especes" ? "Espèces" : "Mobile Money"} —
-          {m.paiementInscription.typePreuve === "id_transaction" ? ` ID transaction : ${m.paiementInscription.idTransaction}` : " Justificatif (photo/document)"} —
-          {" "}{m.paiementInscription.montant.toLocaleString("fr-FR")} F le {new Date(m.paiementInscription.date).toLocaleDateString("fr-FR")}
-        </p>
-      </section>
-
-      <section className="rounded-md border border-[#0c5b2e]/15 bg-[#f7f3e9]/40 p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="flex items-center gap-2 font-semibold text-[#0c5b2e]">
-            <IdCard className="h-4 w-4" /> Carte officielle de membre
-          </h3>
-          <div className="flex gap-2">
-            <Button asChild size="sm" variant="outline">
-              <a href={`/verifier/${encodeURIComponent(m.numeroMembre)}`} target="_blank" rel="noreferrer">
-                Fiche publique <ExternalLink className="ml-1 h-3 w-3" />
-              </a>
-            </Button>
-            <Button asChild size="sm" className="bg-[#0c5b2e] hover:bg-[#0a4a26]">
-              <a href={`/carte?q=${encodeURIComponent(m.telephone)}`} target="_blank" rel="noreferrer">
-                Portail imprimeur
-              </a>
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col items-center gap-4">
-          <MemberCardRecto m={m} />
-          <MemberCardVerso m={m} />
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function Info({ l, v }: { l: string; v: any }) {
-  return <div><div className="text-xs uppercase text-muted-foreground">{l}</div><div className="font-medium">{v}</div></div>;
 }
