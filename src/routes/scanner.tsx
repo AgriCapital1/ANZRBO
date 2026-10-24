@@ -96,7 +96,7 @@ function Page() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight">Scanner un QR Code</h1>
           <p className="mt-2 text-muted-foreground">
-            Vérifiez une carte membre ANZRBO par QR code ou saisie du numéro de téléphone.
+            Vérifiez une carte membre ANZRBO en scannant le QR code ou en saisissant le matricule / téléphone.
           </p>
         </div>
 
@@ -121,8 +121,8 @@ function Page() {
             </div>
 
             <form onSubmit={onManual} className="space-y-3">
-              <Label htmlFor="m">Numéro de téléphone du membre</Label>
-              <Input id="m" inputMode="tel" placeholder="Ex: 07 58 89 43 63" value={manual} onChange={(e) => setManual(e.target.value)} />
+              <Label htmlFor="m">Matricule de membre ou numéro de téléphone</Label>
+              <Input id="m" inputMode="tel" placeholder="ANZRBO-2026-00001 ou 07 58 89 43 63" value={manual} onChange={(e) => setManual(e.target.value)} />
               <Button type="submit" variant="outline" className="w-full" disabled={!manual.trim()}>
                 Vérifier
               </Button>
